@@ -31,7 +31,7 @@ You can preview the production build with `npm run preview`.
 ## License
 
 HotLogger is [free software][2] released under the terms of the Copyfree Open
-Innovation License, version 1.0. See [[COPYING]] for details.
+Innovation License, version 1.0. See [COPYING](COPYING) for details.
 
 [1]: https://pocketbase.io/
 [2]: https://gnu.org/philosophy/free-sw.html
