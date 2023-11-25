@@ -70,7 +70,11 @@
             <div>
                 <label>
                     Call Sign:
-                    <input type="text" name="other_call" style="width:10em" required />
+                    <input type="text" name="other_call" style="width:10em" required 
+                        on:input={e => {
+                            const t = e.target;
+                            t.value = t.value.toUpperCase();
+                        }} />
                 </label>
 
                 <OptionalInput name="rst_sent" {inputs} maxlength="4" pattern="[1-5][0-9]{'{'}1,2{'}'}[A-Za-z]?" />
