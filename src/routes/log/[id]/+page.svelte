@@ -70,7 +70,7 @@
             <div>
                 <label>
                     Call Sign:
-                    <input type="text" name="other_call" style="width:10em" required 
+                    <input type="text" name="other_call" style="width:10em" autocomplete="off" required 
                         on:input={e => {
                             const t = e.target;
                             t.value = t.value.toUpperCase();

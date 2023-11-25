@@ -22,7 +22,7 @@
     {:else}
         <label>
             {label}:
-            <input type="text" {name} value={value || ''} style="width:{width}em" />
+            <input type="text" {name} value={value || ''} style="width:{width}em" autocomplete="off" />
         </label>
 
         {#each Object.entries(choices) as [text, value]}

@@ -18,7 +18,7 @@
     <span>
         <label>
             {standardFields[name]}:
-            <input {type} {name} {maxlength} {pattern} value={value || ''} style="width:{width}em" />
+            <input {type} {name} {maxlength} {pattern} value={value || ''} style="width:{width}em" autocomplete="off" />
         </label>
     </span>
 {/if}
