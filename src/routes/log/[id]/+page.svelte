@@ -5,6 +5,7 @@
     import { contacts } from "$lib/store";
     import OptionalInput from "./OptionalInput.svelte";
     import QuickInput from "./QuickInput.svelte";
+    import dateFormat from 'dateformat';
 
     const columns = logTypes[$page.data.log.type].displayFields;
     const inputs = logTypes[$page.data.log.type].inputs;
@@ -50,7 +51,13 @@
                         <td>{$contacts.length - i}</td>
                         
                         {#each columns as column}
-                            <td>{contact[column]}</td>
+                            {#if column === 'date'}
+                                <td>{dateFormat(contact['time'], 'yyyy-mm-dd', true)}</td>
+                            {:else if column === 'time'}
+                                <td>{dateFormat(contact[column], 'HHMM', true)}</td>
+                            {:else}
+                                <td>{contact[column]}</td>
+                            {/if}
                         {/each}
                     </tr>
                 {/each}

@@ -16,12 +16,13 @@ export const logTypes = [
             'freq_khz', 'mode',
             'memo'
         ],
-        displayFields: [ 'time', 'other_call', 'freq_khz', 'mode', 'name', 'qth', 'rst_sent', 'rst_recd', 'memo' ],
+        displayFields: [ 'date', 'time', 'other_call', 'freq_khz', 'mode', 'name', 'qth', 'rst_sent', 'rst_recd', 'memo' ],
         modes: standardModes
     }
 ];
 
 export const standardFields = {
+    'date': 'Date',
     'time': 'Time',
     'other_call': 'Call',
     'name': 'Name',
