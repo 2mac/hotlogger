@@ -10,20 +10,15 @@
 </script>
 
 <span>
+    <label for={name}>{label}:</label>
     {#if restrict}
-        <label>
-            {label}:
-            <select {name}>
-                {#each Object.entries(choices) as [text, value]}
-                    <option {value}>{text}</option>
-                {/each}
-            </select>
-        </label>
+        <select {name}>
+            {#each Object.entries(choices) as [text, value]}
+                <option {value}>{text}</option>
+            {/each}
+        </select>
     {:else}
-        <label>
-            {label}:
-            <input type="text" {name} value={value || ''} style="width:{width}em" autocomplete="off" />
-        </label>
+        <input type="text" {name} value={value || ''} style="width:{width}em" autocomplete="off" />
 
         {#each Object.entries(choices) as [text, value]}
             <button type="button" on:click={() => {
