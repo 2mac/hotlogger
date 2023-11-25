@@ -98,6 +98,7 @@
     table {
         width: 100%;
         overflow-x: auto;
+        border-collapse: collapse;
     }
 
     tbody {
