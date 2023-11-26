@@ -1,6 +1,7 @@
 <script>
 
     import { page } from "$app/stores";
+    import Modal from "$lib/Modal.svelte";
     import { logTypes, standardFields } from "$lib/logtype";
     import { contacts } from "$lib/store";
     import OptionalInput from "./OptionalInput.svelte";
@@ -26,6 +27,9 @@
 
     let modes = {};
     logTypes[$page.data.log.type].modes.forEach((mode) => modes[mode] = mode);
+
+    let showEditModal = false;
+    let editContact = {};
 </script>
 
 <a href="/log">Back</a>
@@ -47,7 +51,10 @@
 
             <tbody>
                 {#each $contacts as contact, i}
-                    <tr>
+                    <tr on:dblclick={e => {
+                        editContact = contact;
+                        showEditModal = true;
+                    }}>
                         <td>{$contacts.length - i}</td>
                         
                         {#each columns as column}
@@ -93,6 +100,40 @@
         </form>
     </div>
 </div>
+
+<Modal bind:showModal={showEditModal}>
+    <h3 slot="header">Edit contact</h3>
+
+    <form method="POST" action="?/edit">
+        <input type="hidden" name="id" value={editContact.id} />
+        <table>
+            {#each columns as column}
+                <tr>
+                    <th>{standardFields[column]}</th>
+                    <td>
+                        {#if column === 'other_call'}
+                            <input type="text" name="other_call" autocomplete="off" required 
+                                value={editContact.other_call}
+                                on:input={e => {
+                                    const t = e.target;
+                                    t.value = t.value.toUpperCase();
+                                }} />
+                        {:else if column === 'date'}
+                            <input type="date" name="date" value={dateFormat(editContact['time'], 'yyyy-mm-dd', true)} required />
+                        {:else if column === 'time'}
+                            <input type="text" name="time" value={dateFormat(editContact[column], 'HHMM', true)} 
+                                pattern="[0-9]{'{'}2{'}'}:?[0-9]{'{'}2{'}'}" required />
+                        {:else}
+                            <input type="text" name={column} value={editContact[column]} autocomplete="off" />
+                        {/if}
+                    </td>
+                </tr>
+            {/each}
+        </table>
+
+        <button>Save Contact</button>
+    </form>
+</Modal>
 
 <style>
     div.contacts-table {

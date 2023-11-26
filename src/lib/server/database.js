@@ -46,3 +46,9 @@ export async function addContact(data) {
     
     return await pb.collection('contacts').create(data);
 }
+
+export async function updateContact(id, data) {
+    data.other_call = data.other_call.toUpperCase();
+
+    return await pb.collection('contacts').update(id, data);
+}
