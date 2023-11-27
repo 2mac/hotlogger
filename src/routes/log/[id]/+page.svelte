@@ -30,7 +30,7 @@
     logTypes[$page.data.log.type].modes.forEach((mode) => modes[mode] = mode);
 
     let showEditModal = false;
-    let editContact = {};
+    let editContact;
 </script>
 
 <a href="/log">Back</a>
