@@ -4,9 +4,14 @@
     import Modal from "$lib/Modal.svelte";
     import { logTypes, fieldNames, getContactData } from "$lib/logtype";
     import { contacts } from "$lib/store";
+    import { onMount } from "svelte";
     import OptionalInput from "./OptionalInput.svelte";
     import QuickInput from "./QuickInput.svelte";
     import dateFormat from 'dateformat';
+
+    onMount(() => {
+        document.title = $page.data.log.name;
+    });
 
     const logType = logTypes[$page.data.log.type];
     const columns = logType.displayFields;
