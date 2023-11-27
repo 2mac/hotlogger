@@ -2,14 +2,15 @@
 
     import { page } from "$app/stores";
     import Modal from "$lib/Modal.svelte";
-    import { logTypes, standardFields } from "$lib/logtype";
+    import { logTypes, fieldNames, getContactData } from "$lib/logtype";
     import { contacts } from "$lib/store";
     import OptionalInput from "./OptionalInput.svelte";
     import QuickInput from "./QuickInput.svelte";
     import dateFormat from 'dateformat';
 
-    const columns = logTypes[$page.data.log.type].displayFields;
-    const inputs = logTypes[$page.data.log.type].inputs;
+    const logType = logTypes[$page.data.log.type];
+    const columns = logType.displayFields;
+    const inputs = logType.inputs;
     contacts.set($page.data.contacts);
 
     const bands = {
@@ -44,7 +45,7 @@
                     <th>#</th>
                     
                     {#each columns as column}
-                        <th>{standardFields[column]}</th>
+                        <th>{fieldNames[column]}</th>
                     {/each}
                 </tr>
             </thead>
@@ -63,7 +64,7 @@
                             {:else if column === 'time'}
                                 <td>{dateFormat(contact[column], 'HHMM', true)}</td>
                             {:else}
-                                <td>{contact[column]}</td>
+                                <td>{getContactData(contact, column)}</td>
                             {/if}
                         {/each}
                     </tr>
@@ -88,6 +89,7 @@
                 <OptionalInput name="rst_recd" {inputs} maxlength="4" pattern="[1-5][0-9]{'{'}1,2{'}'}[A-Za-z]?" />
                 <OptionalInput name="name" {inputs} />
                 <OptionalInput name="qth" {inputs} />
+                <OptionalInput name="c:skcc_nr" {inputs} />
                 <OptionalInput name="memo" {inputs} width="50" />
 
                 <button>Save Contact</button>
@@ -95,7 +97,7 @@
 
             <div>
                 <QuickInput name="freq_khz" label="Freq (kHz)" choices={bands} width="4" />
-                <QuickInput name="mode" label="Mode" choices={modes} width="4" />
+                <QuickInput name="mode" label="Mode" choices={modes} width="4" restrict={logType.restrictModes} />
             </div>
         </form>
     </div>
@@ -109,7 +111,7 @@
         <table>
             {#each columns as column}
                 <tr>
-                    <th>{standardFields[column]}</th>
+                    <th>{fieldNames[column]}</th>
                     <td>
                         {#if column === 'other_call'}
                             <input type="text" name="other_call" autocomplete="off" required 
@@ -124,7 +126,7 @@
                             <input type="text" name="time" value={dateFormat(editContact[column], 'HHMM', true)} 
                                 pattern="[0-9]{'{'}2{'}'}:?[0-9]{'{'}2{'}'}" required />
                         {:else}
-                            <input type="text" name={column} value={editContact[column]} autocomplete="off" />
+                            <input type="text" name={column} value={getContactData(editContact, column)} autocomplete="off" />
                         {/if}
                     </td>
                 </tr>

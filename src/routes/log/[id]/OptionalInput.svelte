@@ -1,6 +1,6 @@
 <script>
     import { page } from "$app/stores";
-    import { standardFields } from "$lib/logtype";
+    import { fieldNames } from "$lib/logtype";
 
     export let name;
     export let value = $page.data[name];
@@ -17,7 +17,7 @@
 {#if inputs.includes(name)}
     <span>
         <label>
-            {standardFields[name]}:
+            {fieldNames[name]}:
             <input {type} {name} {maxlength} {pattern} value={value || ''} style="width:{width}em" autocomplete="off" />
         </label>
     </span>

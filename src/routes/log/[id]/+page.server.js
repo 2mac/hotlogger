@@ -1,4 +1,5 @@
 import { addContact, getContacts, getLog, updateContact } from '$lib/server/database.js';
+import { formDataToObject } from '$lib/server/form.js';
 
 export async function load({ cookies, params }) {
     const results = await Promise.all([
@@ -21,12 +22,11 @@ export const actions = {
             throw redirect(303, '/');
 
         const formData = await request.formData();
-        const data = {
-            op_call: myCall,
-            log_id: params.id
-        };
         
-        formData.forEach((v, k) => data[k] = v);
+        const data = formDataToObject(formData);
+        data.op_call = myCall;
+        data.log_id = params.id;
+        
         const contact = await addContact(data);
 
         cookies.set('freq_khz', data.freq_khz);
@@ -40,9 +40,8 @@ export const actions = {
 
     edit: async ({ params, request }) => {
         const formData = await request.formData();
-        const data = {};
+        const data = formDataToObject(formData);
         
-        formData.forEach((v, k) => data[k] = v);
         const date = data.date;
         const time = data.time.replace(':', '');
 
