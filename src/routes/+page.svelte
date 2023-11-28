@@ -1,6 +1,9 @@
 <script>
     import { enhance } from "$app/forms";
     import { page } from "$app/stores";
+    import { onMount } from "svelte";
+
+    onMount(() => document.title = 'HotLogger');
 </script>
 
 <div class="container-narrow">
@@ -8,5 +11,6 @@
 
     <form method="POST" use:enhance>
         <input type="text" name="callsign" placeholder="Call Sign" value={$page.data.callsign || ''} required/>
+        <button>Sign in</button>
     </form>
 </div>
