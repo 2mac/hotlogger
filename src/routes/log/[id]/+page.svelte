@@ -139,6 +139,9 @@
                 {/each}
             </table>
 
+            <button formaction="?/delete" on:click={e => {
+                confirm('Really delete this contact?') || e.preventDefault();
+            }}>Delete Contact</button>
             <button>Save Contact</button>
         {/if}
     </form>

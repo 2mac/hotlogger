@@ -1,4 +1,4 @@
-import { addContact, getContacts, getLog, updateContact } from '$lib/server/database.js';
+import { addContact, deleteContact, getContacts, getLog, updateContact } from '$lib/server/database.js';
 import { formDataToObject } from '$lib/server/form.js';
 
 export async function load({ cookies, params }) {
@@ -60,5 +60,14 @@ export const actions = {
             success: true,
             contact: contact
         };
+    },
+
+    delete: async ({ request }) => {
+        const formData = await request.formData();
+        const id = formData.get('id');
+
+        await deleteContact(id);
+
+        return { success: true };
     }
 };

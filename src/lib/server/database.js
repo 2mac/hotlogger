@@ -52,3 +52,7 @@ export async function updateContact(id, data) {
 
     return await pb.collection('contacts').update(id, data);
 }
+
+export async function deleteContact(id) {
+    return await pb.collection('contacts').delete(id);
+}
