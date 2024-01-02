@@ -12,6 +12,6 @@ export const actions = {
     default: async ({ cookies, request }) => {
         const data = await request.formData();
         cookies.set('callsign', data.get('callsign').toUpperCase(), { path: '/' });
-        throw redirect(303, '/log');
+        redirect(303, '/log');
     }
 };

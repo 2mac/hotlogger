@@ -4,7 +4,7 @@ import { redirect } from '@sveltejs/kit';
 export async function load({ cookies }) {
     const callsign = cookies.get('callsign');
     if (!callsign)
-        throw redirect(303, '/');
+        redirect(303, '/');
 
     const results = await Promise.all([
         db.getLogs(callsign),
@@ -21,7 +21,7 @@ export const actions = {
     create: async ({ cookies, request }) => {
         const callsign = cookies.get('callsign');
         if (!callsign)
-            throw redirect(303, '/');
+            redirect(303, '/');
     
         const data = await request.formData();
         let log = await db.createLog(
@@ -32,6 +32,6 @@ export const actions = {
             data.get('shared')
         );
         
-        throw redirect(303, `/log/${log.id}`);
+        redirect(303, `/log/${log.id}`);
     }
 };

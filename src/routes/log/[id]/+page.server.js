@@ -29,8 +29,8 @@ export const actions = {
         
         const contact = await addContact(data);
 
-        cookies.set('freq_khz', data.freq_khz);
-        cookies.set('mode', data.mode);
+        cookies.set('freq_khz', data.freq_khz, { path: '/' });
+        cookies.set('mode', data.mode, { path: '/' });
 
         return {
             success: true,
