@@ -1,5 +1,6 @@
 import { addContact, deleteContact, getContacts, getLog, updateContact } from '$lib/server/database.js';
 import { formDataToObject } from '$lib/server/form.js';
+import { wsServer } from '$lib/server/socket.js';
 
 export async function load({ cookies, params }) {
     const results = await Promise.all([
@@ -8,6 +9,7 @@ export async function load({ cookies, params }) {
     ]);
 
     return {
+        callsign: cookies.get('callsign'),
         log: results[0],
         contacts: results[1],
         freq_khz: cookies.get('freq_khz'),

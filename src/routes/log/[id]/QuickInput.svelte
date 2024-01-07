@@ -1,6 +1,7 @@
 <script>
     import { page } from "$app/stores";
 
+    export let id;
     export let name;
     export let value = $page.data[name];
     export let label;
@@ -12,13 +13,13 @@
 <span>
     <label for={name}>{label}:</label>
     {#if restrict}
-        <select {name}>
+        <select {id} {name}>
             {#each Object.entries(choices) as [text, value]}
                 <option {value}>{text}</option>
             {/each}
         </select>
     {:else}
-        <input type="text" {name} value={value || ''} style="width:{width}em" autocomplete="off" />
+        <input type="text" {id} {name} value={value || ''} style="width:{width}em" autocomplete="off" />
 
         {#each Object.entries(choices) as [text, value]}
             <button type="button" on:click={() => {

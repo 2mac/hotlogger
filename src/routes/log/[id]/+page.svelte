@@ -1,16 +1,59 @@
 <script>
 
     import { page } from "$app/stores";
+    import { enhance } from "$app/forms";
     import Modal from "$lib/Modal.svelte";
     import { logTypes, fieldNames, getContactData } from "$lib/logtype";
     import { contacts } from "$lib/store";
     import { onMount } from "svelte";
+    import { io } from 'socket.io-client';
     import OptionalInput from "./OptionalInput.svelte";
     import QuickInput from "./QuickInput.svelte";
     import dateFormat from 'dateformat';
 
+    let myCall = $page.data.callsign
+    let socket;
+    let socketStatus = 'not connected';
+
     onMount(() => {
         document.title = $page.data.log.name;
+
+        if ($page.data.log.shared) {
+            socket = io({
+                auth: { callsign: myCall },
+                query: { log: $page.data.log.id }
+            });
+
+            socket.on('connect', () => {
+                socketStatus = 'connected';
+            });
+
+            socket.on('disconnect', () => {
+                socketStatus = 'not connected';
+            });
+
+            socket.on('create-contact', contact => {
+                if (contact.op_call !== myCall) {
+                    contacts.update(c => [contact, ...c]);
+                }
+            });
+
+            socket.on('update-contact', contact => {
+                contacts.update(c => {
+                    const i = c.findIndex(c => c.id === contact.id);
+                    if (i >= 0) c[i] = contact;
+                    return c;
+                });
+            });
+
+            socket.on('delete-contact', contact => {
+                contacts.update(c => {
+                    const i = c.findIndex(c => c.id === editContact.id);
+                    if (i >= 0) c.splice(i, 1);
+                    return c;
+                });
+            });
+        }
     });
 
     const logType = logTypes[$page.data.log.type];
@@ -34,11 +77,16 @@
     let modes = {};
     logTypes[$page.data.log.type].modes.forEach((mode) => modes[mode] = mode);
 
+    let saving = false;
     let showEditModal = false;
     let editContact;
 </script>
 
 <a href="/log">Back</a>
+
+{#if $page.data.log.shared}
+Socket status: <span id="socket-status">{socketStatus}</span>
+{/if}
 
 <h2>{$page.data.log.name}</h2>
 
@@ -79,11 +127,24 @@
     </div>
 
     <div class="inputs">
-        <form method="POST" action="?/add">
+        <form method="POST" action="?/add" use:enhance={() => {
+            saving = true;
+
+            return async ({update, result}) => {
+                await update();
+                saving = false;
+                document.getElementById('other_call').focus();
+
+                const contact = result.data.contact;
+                document.getElementById('freq_khz').value = contact.freq_khz;
+                document.getElementById('mode').value = contact.mode;
+                contacts.update(c => [result.data.contact, ...c]);
+            };
+        }}>
             <div>
                 <label>
                     Call Sign:
-                    <input type="text" name="other_call" style="width:10em" autocomplete="off" required 
+                    <input type="text" id="other_call" name="other_call" style="width:10em" autocomplete="off" required 
                         on:input={e => {
                             const t = e.target;
                             t.value = t.value.toUpperCase();
@@ -101,8 +162,8 @@
             </div>
 
             <div>
-                <QuickInput name="freq_khz" label="Freq (kHz)" choices={bands} width="4" />
-                <QuickInput name="mode" label="Mode" choices={modes} width="4" restrict={logType.restrictModes} />
+                <QuickInput id="freq_khz" name="freq_khz" label="Freq (kHz)" choices={bands} width="4" />
+                <QuickInput id="mode" name="mode" label="Mode" choices={modes} width="4" restrict={logType.restrictModes} />
             </div>
         </form>
     </div>
@@ -111,7 +172,25 @@
 <Modal bind:showModal={showEditModal}>
     <h3 slot="header">Edit contact</h3>
 
-    <form method="POST" action="?/edit">
+    <form method="POST" action="?/edit" use:enhance={({action}) => {
+        return async ({update, result}) => {
+            showEditModal = false;
+
+            if (action.search === '?/edit') {
+                contacts.update(c => {
+                    const i = c.findIndex(c => c.id === editContact.id);
+                    if (i >= 0) c[i] = result.data.contact;
+                    return c;
+                });
+            } else { // delete
+                contacts.update(c => {
+                    const i = c.findIndex(c => c.id === editContact.id);
+                    if (i >= 0) c.splice(i, 1);
+                    return c;
+                });
+            }
+        };
+    }}>
         {#if editContact}
             <input type="hidden" name="id" value={editContact.id} />
             <table>
@@ -149,6 +228,7 @@
 
 <style>
     div.contacts-table {
+        overflow-y: scroll;
         height: 50vh;
     }
 
@@ -156,10 +236,6 @@
         width: 100%;
         overflow-x: auto;
         border-collapse: collapse;
-    }
-
-    tbody {
-        overflow-y: scroll;
     }
 
     th {

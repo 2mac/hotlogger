@@ -29,7 +29,7 @@ export const actions = {
             data.get('callsign'), 
             data.get('name'), 
             data.get('type'), 
-            data.get('shared')
+            data.has('shared')
         );
         
         redirect(303, `/log/${log.id}`);
