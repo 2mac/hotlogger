@@ -22,6 +22,10 @@ export async function getLog(id) {
     return await pb.collection('logbooks').getFirstListItem(pb.filter('id = {:id}', { id: id }));
 }
 
+export async function touchLog(log) {
+    pb.collection('logbooks').update(log.id, log);
+}
+
 export async function createLog(owner, callsign, name, type, shared) {
     return await pb.collection('logbooks').create({
         owner: owner.toUpperCase(),

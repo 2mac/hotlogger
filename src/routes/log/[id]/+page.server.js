@@ -1,12 +1,13 @@
-import { addContact, deleteContact, getContacts, getLog, updateContact } from '$lib/server/database.js';
+import { addContact, deleteContact, getContacts, getLog, touchLog, updateContact } from '$lib/server/database.js';
 import { formDataToObject } from '$lib/server/form.js';
-import { wsServer } from '$lib/server/socket.js';
 
 export async function load({ cookies, params }) {
     const results = await Promise.all([
         getLog(params.id),
         getContacts(params.id)
     ]);
+
+    touchLog(results[0]);
 
     return {
         callsign: cookies.get('callsign'),
