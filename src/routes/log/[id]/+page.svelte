@@ -10,6 +10,8 @@
     import OptionalInput from "./OptionalInput.svelte";
     import QuickInput from "./QuickInput.svelte";
     import dateFormat from 'dateformat';
+    import { bandChoices, bandToFreq, commonBands, freqToBand } from "$lib/bands";
+    import { get } from "svelte/store";
 
     let myCall = $page.data.callsign
     let socket;
@@ -57,29 +59,27 @@
     });
 
     const logType = logTypes[$page.data.log.type];
-    const columns = logType.displayFields;
     const inputs = logType.inputs;
     contacts.set($page.data.contacts);
 
-    const bands = {
-        '6m': 50000,
-        '10m': 28000,
-        '12m': 24890,
-        '15m': 21000,
-        '17m': 18068,
-        '20m': 14000,
-        '30m': 10100,
-        '40m': 7000,
-        '80m': 3500,
-        '160m': 1800
-    };
+    let columns = logType.displayFields;
+    if ($page.data.log.shared)
+        columns = [...columns, 'op_call'];
+
+    const bands = bandChoices(logType.bands || commonBands);
 
     let modes = {};
-    logTypes[$page.data.log.type].modes.forEach((mode) => modes[mode] = mode);
+    logType.modes.forEach((mode) => modes[mode] = mode);
 
-    let saving = false;
     let showEditModal = false;
+    let duplicateText = '&nbsp;';
     let editContact;
+
+    let otherCall = '';
+    let freqKhz;
+    let mode;
+
+    $: otherCall = otherCall.toUpperCase();
 </script>
 
 <a href="/log">Back</a>
@@ -116,6 +116,8 @@ Socket status: <span id="socket-status">{socketStatus}</span>
                                 <td>{dateFormat(contact['time'], 'yyyy-mm-dd', true)}</td>
                             {:else if column === 'time'}
                                 <td>{dateFormat(contact[column], 'HHMM', true)}</td>
+                            {:else if column === 'band'}
+                                <td>{freqToBand(contact['freq_khz'])}</td>
                             {:else}
                                 <td>{getContactData(contact, column)}</td>
                             {/if}
@@ -126,13 +128,21 @@ Socket status: <span id="socket-status">{socketStatus}</span>
         </table>
     </div>
 
+    {#if logType.preventDuplicates}
+        <p style="color:red">{@html duplicateText}</p>
+    {/if}
+
     <div class="inputs">
-        <form method="POST" action="?/add" use:enhance={() => {
-            saving = true;
+        <form method="POST" id="new-contact-form" action="?/add" use:enhance={({cancel}) => {
+            if (logType.preventDuplicates === true) {
+                const dupe = get(contacts).find(c => c.other_call === otherCall && freqToBand(c.freq_khz) === freqToBand(freqKhz) && c.mode === mode);
+                if (dupe)
+                    cancel();
+            }
 
             return async ({update, result}) => {
                 await update();
-                saving = false;
+                duplicateText = '&nbsp;';
                 document.getElementById('other_call').focus();
 
                 const contact = result.data.contact;
@@ -145,9 +155,43 @@ Socket status: <span id="socket-status">{socketStatus}</span>
                 <label>
                     Call Sign:
                     <input type="text" id="other_call" name="other_call" style="width:10em" autocomplete="off" required 
+                        bind:value={otherCall}
                         on:input={e => {
                             const t = e.target;
                             t.value = t.value.toUpperCase();
+
+                            if (logType.preventDuplicates) {
+                                if (t.value.length < 3) {
+                                    duplicateText = '&nbsp;';
+                                } else {
+                                    const dupes = get(contacts).filter(c => c.other_call.includes(t.value))
+                                        .filter(c => freqToBand(c.freq_khz) === freqToBand(freqKhz) && c.mode === mode)
+                                        .map(c => c.other_call).toSorted();
+                                    const exact = dupes.find(c => c === t.value);
+
+                                    if (exact)
+                                        duplicateText = '<strong>DUPLICATE:</strong> ' + exact;
+                                    else if (dupes.length !== 0)
+                                        duplicateText = 'Potential duplicates: ' + dupes.join(', ');
+                                    else
+                                        duplicateText = '&nbsp;';
+                                }
+                            }
+                        }}
+                        on:change={e => {
+                            if (logType.autocomplete) {
+                                const call = e.target.value.toUpperCase();
+                                const contact = get(contacts).find(c => c.other_call === call);
+
+                                if (contact) {
+                                    const formInputs = document.getElementById('new-contact-form').elements;
+                                    const skipInputs = ['other_call', 'freq_khz', 'mode'];
+
+                                    inputs.filter(i => !skipInputs.includes(i)).forEach(input => {
+                                        formInputs[input].value = getContactData(contact, input);
+                                    });
+                                }
+                            }
                         }} />
                 </label>
 
@@ -155,6 +199,8 @@ Socket status: <span id="socket-status">{socketStatus}</span>
                 <OptionalInput name="rst_recd" {inputs} maxlength="4" pattern="[1-5][0-9]{'{'}1,2{'}'}[A-Za-z]?" />
                 <OptionalInput name="name" {inputs} />
                 <OptionalInput name="qth" {inputs} />
+                <OptionalInput name="c:class" {inputs} maxlength="4" />
+                <OptionalInput name="c:arrl_section" {inputs} maxlength="3" />
                 <OptionalInput name="c:skcc_nr" {inputs} />
                 <OptionalInput name="memo" {inputs} width="50" />
 
@@ -162,8 +208,8 @@ Socket status: <span id="socket-status">{socketStatus}</span>
             </div>
 
             <div>
-                <QuickInput id="freq_khz" name="freq_khz" label="Freq (kHz)" choices={bands} width="4" />
-                <QuickInput id="mode" name="mode" label="Mode" choices={modes} width="4" restrict={logType.restrictModes} />
+                <QuickInput id="freq_khz" name="freq_khz" label="Freq (kHz)" choices={bands} bind:value={freqKhz} width="4" restrict={logType.restrictBands} />
+                <QuickInput id="mode" name="mode" label="Mode" choices={modes} bind:value={mode} width="4" restrict={logType.restrictModes} />
             </div>
         </form>
     </div>
@@ -210,6 +256,18 @@ Socket status: <span id="socket-status">{socketStatus}</span>
                             {:else if column === 'time'}
                                 <input type="text" name="time" value={dateFormat(editContact[column], 'HHMM', true)} 
                                     pattern="[0-9]{'{'}2{'}'}:?[0-9]{'{'}2{'}'}" required />
+                            {:else if column === 'band'}
+                                <select name="freq_khz">
+                                    {#each logType.bands as band}
+                                        <option value={bandToFreq(band)}>{band}</option>
+                                    {/each}
+                                </select>
+                            {:else if column === 'mode' && logType.restrictModes}
+                                <select name="mode">
+                                    {#each logType.modes as mode}
+                                        <option value={mode}>{mode}</option>
+                                    {/each}
+                                </select>
                             {:else}
                                 <input type="text" name={column} value={getContactData(editContact, column)} autocomplete="off" />
                             {/if}

@@ -1,3 +1,5 @@
+import { contestBands } from "./bands";
+
 const standardModes = [
     'SSB',
     'CW',
@@ -33,6 +35,19 @@ export const logTypes = [
         displayFields: [ 'date', 'time', 'other_call', 'freq_khz', 'c:skcc_nr', 'name', 'qth', 'rst_sent', 'rst_recd', 'memo' ],
         modes: [ 'CW' ],
         restrictModes: true
+    },
+
+    {
+        id: 2,
+        name: 'Winter Field Day',
+        display: true,
+        inputs: [ 'other_call', 'c:class', 'c:arrl_section', 'freq_khz', 'mode' ],
+        displayFields: [ 'date', 'time', 'other_call', 'c:class', 'c:arrl_section', 'band', 'mode' ],
+        modes: [ 'PH', 'CW', 'DI' ],
+        restrictModes: true,
+        bands: contestBands,
+        autocomplete: true,
+        preventDuplicates: true
     }
 ];
 
@@ -45,9 +60,12 @@ export const fieldNames = {
     'rst_sent': 'RST Sent',
     'rst_recd': "RST Rec'd",
     'freq_khz': 'Frequency',
+    'band': 'Band',
     'mode': 'Mode',
     'op_call': 'Operator',
     'memo': 'Memo',
+    'c:arrl_section': 'Section',
+    'c:class': 'Class',
     'c:skcc_nr': 'SKCC #'
 };
 

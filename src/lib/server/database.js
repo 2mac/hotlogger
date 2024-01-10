@@ -44,15 +44,28 @@ export async function getContacts(logId) {
     });
 }
 
+function sanitizeContact(data) {
+    data.other_call = data.other_call.toUpperCase();
+
+    if (data.custom) {
+        const c = data.custom;
+
+        c.arrl_section = c.arrl_section?.toUpperCase();
+        c.class = c.class?.toUpperCase();
+    }
+
+    return data;
+}
+
 export async function addContact(data) {
     data['time'] = new Date();
-    data.other_call = data.other_call.toUpperCase();
+    data = sanitizeContact(data);
     
     return await pb.collection('contacts').create(data);
 }
 
 export async function updateContact(id, data) {
-    data.other_call = data.other_call.toUpperCase();
+    data = sanitizeContact(data);
 
     return await pb.collection('contacts').update(id, data);
 }
