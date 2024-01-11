@@ -8,6 +8,7 @@
     export let maxlength;
     export let pattern;
     export let width;
+    export let required = false;
     export let type = "text";
 
     if (!width)
@@ -18,7 +19,7 @@
     <span>
         <label>
             {fieldNames[name]}:
-            <input {type} {name} {maxlength} {pattern} value={value || ''} style="width:{width}em" autocomplete="off" />
+            <input {type} {name} {maxlength} {pattern} value={value || ''} style="width:{width}em" autocomplete="off" {required} />
         </label>
     </span>
 {/if}

@@ -244,8 +244,8 @@
                     <OptionalInput name="rst_recd" {inputs} maxlength="4" pattern="[1-5][0-9]{'{'}1,2{'}'}[A-Za-z]?" />
                     <OptionalInput name="name" {inputs} />
                     <OptionalInput name="qth" {inputs} />
-                    <OptionalInput name="c:class" {inputs} maxlength="4" />
-                    <OptionalInput name="c:arrl_section" {inputs} maxlength="3" />
+                    <OptionalInput name="c:class" {inputs} maxlength="4" required />
+                    <OptionalInput name="c:arrl_section" {inputs} maxlength="3" required />
                     <OptionalInput name="c:skcc_nr" {inputs} />
                     <OptionalInput name="memo" {inputs} width="50" />
 
@@ -254,11 +254,13 @@
 
                 <div>
                     <QuickInput id="freq_khz" name="freq_khz" label="Freq (kHz)" choices={bands} bind:value={freqKhz} width="4" restrict={logType.restrictBands}
+                        required
                         on:change={e => {
                             const value = e.target.value;
                             socket?.emit('change-band', freqToBand(value));
                         }} />
                     <QuickInput id="mode" name="mode" label="Mode" choices={modes} bind:value={mode} width="4" restrict={logType.restrictModes}
+                        required
                         on:change={e => {
                             const value = e.target.value;
                             socket?.emit('change-mode', value);

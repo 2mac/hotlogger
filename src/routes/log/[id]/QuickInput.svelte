@@ -9,6 +9,7 @@
     export let choices;
     export let width = 10;
     export let restrict = false;
+    export let required = false;
 
     let input;
 </script>
@@ -16,13 +17,13 @@
 <span>
     <label for={name}>{label}:</label>
     {#if restrict}
-        <select {id} {name} bind:value={value} on:change>
+        <select {id} {name} {required} bind:value={value} on:change>
             {#each Object.entries(choices) as [text, value]}
                 <option {value}>{text}</option>
             {/each}
         </select>
     {:else}
-        <input type="text" {id} {name} bind:value={value} bind:this={input} on:change style="width:{width}em" autocomplete="off" />
+        <input type="text" {id} {name} bind:value={value} bind:this={input} on:change style="width:{width}em" autocomplete="off" {required} />
 
         {#each Object.entries(choices) as [text, choice]}
             <button type="button" on:click={() => {
