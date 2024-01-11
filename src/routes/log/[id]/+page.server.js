@@ -72,5 +72,12 @@ export const actions = {
         await deleteContact(id);
 
         return { success: true };
+    },
+
+    changeCall: async ({ cookies, request }) => {
+        const data = await request.formData();
+        cookies.set('callsign', data.get('callsign').toUpperCase(), { path: '/' });
+
+        return { success: true };
     }
 };

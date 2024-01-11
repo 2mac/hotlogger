@@ -1,4 +1,4 @@
-import { contestBands } from "./bands";
+import { contestBands, freqToBand } from "./bands";
 
 const standardModes = [
     'SSB',
@@ -46,8 +46,17 @@ export const logTypes = [
         modes: [ 'PH', 'CW', 'DI' ],
         restrictModes: true,
         bands: contestBands,
+        contest: true,
         autocomplete: true,
-        preventDuplicates: true
+        preventDuplicates: true,
+
+        score: (log, contacts) => {
+            const pairs = new Set();
+            contacts.forEach(({ freq_khz, mode }) => pairs.add(`${freqToBand(freq_khz)}_${mode}}`));
+            const mult = pairs.size;
+            const qsoPoints = contacts.map(({ mode }) => mode === 'PH' ? 1 : 2).reduce((total, next) => total + next);
+            return mult * qsoPoints;
+        }
     }
 ];
 

@@ -12,6 +12,13 @@ function forwardEvent(socket, name) {
     });
 }
 
+function roomData(socket) {
+    return {
+        id: socket.id,
+        data: socket.data
+    };
+}
+
 export function initWsServer(httpServer) {
     const io = new Server(httpServer);
 
@@ -21,13 +28,30 @@ export function initWsServer(httpServer) {
         if (hs.auth.callsign) {
             socket.data.db = false;
             socket.data.callsign = hs.auth.callsign;
+            socket.data.band = hs.query.band;
+            socket.data.mode = hs.query.mode;
 
-            io.to(hs.query.log).emit('join', socket.data.callsign);
+            io.to(hs.query.log).emit('join', roomData(socket));
             socket.join(hs.query.log);
 
             socket.on('disconnect', () => {
                 console.log(`${socket.data.callsign} disconnected`);
-                socket.rooms.forEach(room => io.to(room).emit('part', socket.data.callsign));
+                io.to(hs.query.log).emit('part', socket.id);
+            });
+
+            socket.on('who', async (arg, callback) => {
+                const sockets = await io.in(hs.query.log).fetchSockets();
+                callback(sockets.map(roomData));
+            });
+
+            socket.on('change-band', arg => {
+                socket.data.band = arg;
+                io.to(hs.query.log).emit('update', roomData(socket));
+            });
+
+            socket.on('change-mode', arg => {
+                socket.data.mode = arg;
+                io.to(hs.query.log).emit('update', roomData(socket));
             });
 
             console.log(`${socket.data.callsign} joined ${hs.query.log}`);
