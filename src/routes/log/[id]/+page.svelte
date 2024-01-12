@@ -271,6 +271,10 @@
     </div>
 
     <div class="sidebar">
+        <div>
+            <a href="/log/{$page.data.log.id}/settings">Logbook Settings</a>
+        </div>
+        
         {#if $page.data.log.shared}
             <div>
                 Socket status: {socketStatus}

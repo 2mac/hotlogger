@@ -43,19 +43,29 @@ export const logTypes = [
         display: true,
         inputs: [ 'other_call', 'c:class', 'c:arrl_section', 'freq_khz', 'mode' ],
         displayFields: [ 'date', 'time', 'other_call', 'c:class', 'c:arrl_section', 'band', 'mode' ],
-        modes: [ 'PH', 'CW', 'DI' ],
+        modes: [ 'PH', 'CW', 'DG' ],
         restrictModes: true,
         bands: contestBands,
         contest: true,
         autocomplete: true,
         preventDuplicates: true,
 
+        customFields: [
+            { key: 'qrp', label: 'QRP?', type: 'checkbox' },
+            { key: 'class', label: 'Station Class', type: 'text', required: true },
+            { key: 'arrl_section', label: 'Section', type: 'text', required: true },
+            { key: 'club', label: 'Club Name', type: 'text' },
+            { key: 'address', label: 'Address', type: 'address', required: true },
+            { key: 'email', label: 'Email', type: 'email' }
+        ],
+
         score: (log, contacts) => {
             const pairs = new Set();
             contacts.forEach(({ freq_khz, mode }) => pairs.add(`${freqToBand(freq_khz)}_${mode}}`));
             const mult = pairs.size;
             const qsoPoints = contacts.map(({ mode }) => mode === 'PH' ? 1 : 2).reduce((total, next) => total + next);
-            return mult * qsoPoints;
+            const powerMult = log.custom?.qrp ? 2 : 1;
+            return mult * powerMult * qsoPoints;
         }
     }
 ];

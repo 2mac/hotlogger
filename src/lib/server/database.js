@@ -36,6 +36,16 @@ export async function createLog(owner, callsign, name, type, shared) {
     });
 }
 
+export async function updateLog(id, data) {
+    return await pb.collection('logbooks').update(id, data);
+}
+
+export async function deleteLog(id) {
+    getContacts(id).then(contacts => contacts.forEach(c => pb.collection('contacts').delete(c.id)));
+    
+    return await pb.collection('logbooks').delete(id);
+}
+
 export async function getContacts(logId) {
     return await pb.collection('contacts').getFullList({
         filter: pb.filter('log_id = {:logId}', { logId: logId }),
