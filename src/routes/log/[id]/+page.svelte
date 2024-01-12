@@ -98,7 +98,7 @@
         socket?.disconnect();
     });
 
-    const logType = logTypes[$page.data.log.type];
+    const logType = logTypes.find(t => t.id === $page.data.log.type);
     const inputs = logType.inputs;
     contacts.set($page.data.contacts);
 
