@@ -3,7 +3,7 @@
     import { page } from "$app/stores";
     import { enhance } from "$app/forms";
     import Modal from "$lib/Modal.svelte";
-    import { logTypes, fieldNames, getContactData } from "$lib/logtype";
+    import { exportFormats, logTypes, fieldNames, getContactData } from "$lib/logtype";
     import { contacts } from "$lib/store";
     import { onDestroy, onMount } from "svelte";
     import { io } from 'socket.io-client';
@@ -157,15 +157,7 @@
                             <td>{$contacts.length - i}</td>
                             
                             {#each columns as column}
-                                {#if column === 'date'}
-                                    <td>{dateFormat(contact['time'], 'yyyy-mm-dd', true)}</td>
-                                {:else if column === 'time'}
-                                    <td>{dateFormat(contact[column], 'HHMM', true)}</td>
-                                {:else if column === 'band'}
-                                    <td>{freqToBand(contact['freq_khz'])}</td>
-                                {:else}
-                                    <td>{getContactData(contact, column)}</td>
-                                {/if}
+                                <td>{getContactData(contact, column)}</td>
                             {/each}
                         </tr>
                     {/each}
@@ -272,7 +264,19 @@
 
     <div class="sidebar">
         <div>
-            <a href="/log/{$page.data.log.id}/settings">Logbook Settings</a>
+            <a href="/log/{$page.data.log.id}/settings"><button>Logbook Settings</button></a>
+        </div>
+
+        <div>
+            <form action="/log/{$page.data.log.id}/export">
+                <select name="format">
+                    {#each Object.keys(logType.exports || {}) as k}
+                        <option value={k}>{exportFormats[k].name}</option>
+                    {/each}
+                    <option value="csv">CSV</option>
+                </select>
+                <button>Export</button>
+            </form>
         </div>
         
         {#if $page.data.log.shared}
@@ -364,7 +368,7 @@
                                 <input type="date" name="date" value={dateFormat(editContact['time'], 'yyyy-mm-dd', true)} required />
                             {:else if column === 'time'}
                                 <input type="text" name="time" value={dateFormat(editContact[column], 'HHMM', true)} 
-                                    pattern="[0-9]{'{'}2{'}'}:?[0-9]{'{'}2{'}'}" required />
+                                    pattern="[0-9]{'{'}2{'}'}:?[0-9]{'{'}2{'}'}" required autocomplete="off" />
                             {:else if column === 'band'}
                                 <select name="freq_khz">
                                     {#each logType.bands as band}

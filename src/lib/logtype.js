@@ -1,4 +1,5 @@
 import { contestBands, freqToBand } from "./bands";
+import dateFormat from "dateformat";
 
 const standardModes = [
     'SSB',
@@ -6,6 +7,54 @@ const standardModes = [
     'RTTY',
     'FT8'
 ];
+
+export const exportFormats = {
+    cabrillo: {
+        format: 'cabrillo',
+        name: 'Cabrillo 3.0',
+        defaultHeader(log, contacts) {
+            const logType = logTypes.find(t => t.id === log.type);
+            const header = new Map();
+            header.set('CALLSIGN', log.callsign);
+            header.set('CATEGORY-ASSISTED', 'NON-ASSISTED');
+            header.set('CATEGORY-BAND', 'ALL');
+            header.set('CATEGORY-MODE', 'MIXED');
+            header.set('NAME', log.custom?.poc || log.owner);
+            header.set('EMAIL', log.custom?.email || '');
+
+            if (log.custom?.arrl_section)
+                header.set('LOCATION', log.custom.arrl_section);
+
+            if (log.custom?.address) {
+                const addr = log.custom.address;
+                header.set('ADDRESS', addr.address);
+                header.set('ADDRESS-CITY', addr.city);
+                header.set('ADDRESS-STATE-PROVINCE', addr.state);
+                header.set('ADDRESS-POSTALCODE', addr.zip);
+                header.set('ADDRESS-COUNTRY', addr.country);
+            }
+
+            const operators = new Set();
+            contacts.forEach(contact => operators.add(contact.op_call));
+            header.set('OPERATORS', [...operators].toSorted().join(', '));
+            header.set('CATEGORY-OPERATOR', operators.size > 1 ? 'MULTI-OP' : 'SINGLE-OP');
+
+            if (logType.score)
+                header.set('CLAIMED-SCORE', logType.score(log, contacts));
+
+            return header;
+        }
+    },
+
+    csv: {
+        format: 'csv',
+        name: 'CSV',
+        defaultHeader(log, contacts) {
+            const logType = logTypes.find(t => t.id === log.type);
+            return logType.displayFields.map(field => fieldNames[field]);
+        }
+    }
+};
 
 export const logTypes = [
     {
@@ -54,6 +103,7 @@ export const logTypes = [
             { key: 'qrp', label: 'QRP?', type: 'checkbox' },
             { key: 'class', label: 'Station Class', type: 'text', required: true },
             { key: 'arrl_section', label: 'Section', type: 'text', required: true },
+            { key: 'poc', label: 'Primary Contact Name', type: 'text', required: true },
             { key: 'club', label: 'Club Name', type: 'text' },
             { key: 'address', label: 'Address', type: 'address', required: true },
             { key: 'email', label: 'Email', type: 'email' }
@@ -66,6 +116,35 @@ export const logTypes = [
             const qsoPoints = contacts.map(({ mode }) => mode === 'PH' ? 1 : 2).reduce((total, next) => total + next);
             const powerMult = log.custom?.qrp ? 2 : 1;
             return mult * powerMult * qsoPoints;
+        },
+
+        exports: {
+            cabrillo: (log, contacts) => {
+                const header = exportFormats.cabrillo.defaultHeader(log, contacts);
+                const qsos = contacts.map(qso => {
+                    qso.exchange = {
+                        sent: `${log.callsign} ${log.custom.class} ${log.custom.arrl_section}`,
+                        received: `${qso.other_call} ${qso.custom.class} ${qso.custom.arrl_section}`
+                    };
+
+                    return qso;
+                });
+
+                header.set('CONTEST', 'WFD');
+                header.set('CATEGORY-POWER', log.custom.qrp ? 'LOW' : 'HIGH');
+                header.set('CATEGORY-STATION', log.custom.class.endsWith('M') ? 'MOBILE' : 'FIXED');
+
+                const numXmitters = Number(log.custom.class.slice(0, -1) || 1);
+                header.set('CATEGORY-TRANSMITTER',
+                    numXmitters === 1 ? 'ONE' :
+                    numXmitters === 2 ? 'TWO' :
+                    'UNLIMITED'
+                );
+
+                header.set('X-EXCHANGE', log.custom.class);
+
+                return { header, qsos };
+            }
         }
     }
 ];
@@ -95,6 +174,11 @@ export function getContactData(contact, column) {
         else
             return null;
     } else {
-        return contact[column];
+        const data = column === 'date' ? dateFormat(contact.time, 'yyyy-mm-dd', true) :
+            column === 'time' ? dateFormat(contact.time, 'HHMM', true) :
+            column === 'band' ? freqToBand(contact.freq_khz) :
+            contact[column];
+
+        return data;
     }
 }
