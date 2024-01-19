@@ -40,6 +40,8 @@
                                 <input type="text" name="addr:{key}:city" value={log.custom?.[key]?.city || ''} placeholder="City" style="width:10em" {required} />
                                 <input type="text" name="addr:{key}:state" value={log.custom?.[key]?.state || ''} placeholder="State" maxlength="2" style="width:2.5em" {required} />
                                 <input type="text" name="addr:{key}:zip" value={log.custom?.[key]?.zip || ''} placeholder="ZIP Code" style="width:6em" {required} />
+                                <br />
+                                <input type="text" name="addr:{key}:country" value={log.custom?.[key]?.country || 'USA'} placeholder="Country" {required} />
                             </div>
                         </div>
                     {:else}
@@ -48,7 +50,7 @@
                         {#if type === 'checkbox'}
                             <input {type} name="c:{key}" checked={log.custom?.[key]} {required} />
                         {:else}
-                            <input {type} name="c:{key}" value={log.custom?.[key]} {required} />
+                            <input {type} name="c:{key}" value={log.custom?.[key] || ''} {required} />
                         {/if}
                     {/if}
                 {/each}
