@@ -1,7 +1,7 @@
 import eventsource from 'eventsource';
 import { Server } from "socket.io";
 import { io } from "socket.io-client";
-import { pb } from './database';
+import { pb } from './database.js';
 
 global.EventSource = eventsource;
 
