@@ -28,7 +28,7 @@
                 query: {
                     log: $page.data.log.id,
                     band: freqToBand($page.data.freq_khz),
-                    mode: $page.data.mode
+                    mode: $page.data.mode || '?'
                 }
             });
 

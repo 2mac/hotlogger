@@ -25,6 +25,9 @@ export const commonBands = [ '6m', ...hfBands, '160m' ];
 export const contestBands = [ '10m', '15m', '20m', '40m', '80m', '160m' ];
 
 export function freqToBand(freq) {
+    if (!freq)
+        return '?';
+    
     return Object.keys(bands).find(k => freq >= bands[k][0] && freq <= bands[k][1]);
 }
 
