@@ -50,7 +50,8 @@ export async function getContacts(logId) {
     return await pb.collection('contacts').getFullList({
         filter: pb.filter('log_id = {:logId}', { logId: logId }),
         sort: '-time,-created',
-        requestKey: null
+        requestKey: null,
+        batch: 10000
     });
 }
 
