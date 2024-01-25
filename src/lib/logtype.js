@@ -113,7 +113,7 @@ export const logTypes = [
             const pairs = new Set();
             contacts.forEach(({ freq_khz, mode }) => pairs.add(`${freqToBand(freq_khz)}_${mode}}`));
             const mult = pairs.size;
-            const qsoPoints = contacts.map(({ mode }) => mode === 'PH' ? 1 : 2).reduce((total, next) => total + next);
+            const qsoPoints = contacts.map(({ mode }) => mode === 'PH' ? 1 : 2).reduce((total, next) => total + next, 0);
             const powerMult = log.custom?.qrp ? 2 : 1;
             return mult * powerMult * qsoPoints;
         },

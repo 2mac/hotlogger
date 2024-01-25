@@ -11,7 +11,7 @@ export function load({ cookies }) {
 export const actions = {
     default: async ({ cookies, request }) => {
         const data = await request.formData();
-        cookies.set('callsign', data.get('callsign').toUpperCase(), { path: '/' });
+        cookies.set('callsign', data.get('callsign').toUpperCase(), { path: '/' , secure: false});
         redirect(303, '/log');
     }
 };
