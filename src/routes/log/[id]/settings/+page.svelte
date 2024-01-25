@@ -58,7 +58,9 @@
         {/if}
 
         <button>Save</button>
-        <button formaction="?/delete" on:click={e => {
+    </form>
+    <form method="POST" action="?/delete">
+        <button on:click={e => {
             (confirm('Really delete this logbook?') && 
                 confirm('Are you really absolutely sure? This logbook and all its contacts will be permanently deleted!')) || 
             e.preventDefault();
