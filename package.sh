@@ -11,7 +11,13 @@ fi
 
 rm -rf "$DIR"
 mkdir "$DIR"
-cp -r ./build ./pb_migrations "$DIR"
+
+cp -r ./build "$DIR/$npm_package_name"
+cp -r ./pb_migrations ./package.json ./package-lock.json "$DIR"
+pushd "$DIR"
+npm ci --omit dev
+popd
+
 tar czf "$ARCHIVE" "$DIR"
 rm -rf "$DIR"
 
