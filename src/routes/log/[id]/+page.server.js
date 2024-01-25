@@ -1,18 +1,26 @@
+import { logTypes } from '$lib/logtype.js';
 import { addContact, deleteContact, getContacts, getLog, touchLog, updateContact } from '$lib/server/database.js';
 import { formDataToObject } from '$lib/server/form.js';
+import { redirect } from '@sveltejs/kit';
 
 export async function load({ cookies, params }) {
-    const results = await Promise.all([
-        getLog(params.id),
-        getContacts(params.id)
-    ]);
+    const log = await getLog(params.id);
 
-    touchLog(results[0]);
+    const callsign = cookies.get('callsign');
+    if (log.owner === callsign) {
+        const logType = logTypes.find(t => t.id === log.type);
+        const reqField = logType.customFields?.find(f => f.required === true && !log.custom?.[f.key]);
+        if (reqField)
+            throw redirect(303, `/log/${params.id}/settings`);
+    }
+
+    const contacts = await getContacts(params.id);
+    touchLog(log);
 
     return {
-        callsign: cookies.get('callsign'),
-        log: results[0],
-        contacts: results[1],
+        callsign: callsign,
+        log: log,
+        contacts: contacts,
         freq_khz: cookies.get('freq_khz'),
         mode: cookies.get('mode')
     };
