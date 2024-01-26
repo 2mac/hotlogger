@@ -12,6 +12,8 @@
     import dateFormat from 'dateformat';
     import { bandChoices, bandToFreq, commonBands, freqToBand } from "$lib/bands";
     import { get } from "svelte/store";
+    import { arrlSections } from "$lib/arrlSection";
+    import SectionChecklist from "./SectionChecklist.svelte";
 
     let myCall = $page.data.callsign;
     const logCall = $page.data.log.callsign;
@@ -136,7 +138,7 @@
 
 <div class="container">
     <div class="log-layout">
-        <div class="contacts-table">
+        <div class="contacts-table scroll">
             <table>
                 <thead>
                     <tr>
@@ -324,6 +326,11 @@
                     <strong>Score: {score}</strong>
                 </div>
             {/if}
+
+            {#if inputs.includes('c:arrl_section')}
+                <h4>ARRL Section Checklist</h4>
+                <SectionChecklist groups={arrlSections} />
+            {/if}
         {/if}
     </div>
 </div>
@@ -408,7 +415,6 @@
     }
     
     div.contacts-table {
-        overflow-y: scroll;
         height: 50vh;
     }
 

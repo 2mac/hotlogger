@@ -7,3 +7,7 @@ div.container-narrow {
     margin: auto;
     max-width: 45em;
 }
+
+div.scroll {
+    overflow-y: scroll;
+}
