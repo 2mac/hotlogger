@@ -205,7 +205,7 @@
                                     } else {
                                         const dupes = get(contacts).filter(c => c.other_call.includes(t.value))
                                             .filter(c => freqToBand(c.freq_khz) === freqToBand(freqKhz) && c.mode === mode)
-                                            .map(c => c.other_call).toSorted();
+                                            .map(c => c.other_call).sort();
                                         const exact = dupes.find(c => c === t.value);
 
                                         if (exact)

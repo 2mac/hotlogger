@@ -36,7 +36,7 @@ export const exportFormats = {
 
             const operators = new Set();
             contacts.forEach(contact => operators.add(contact.op_call));
-            header.set('OPERATORS', [...operators].toSorted().join(', '));
+            header.set('OPERATORS', [...operators].sort().join(', '));
             header.set('CATEGORY-OPERATOR', operators.size > 1 ? 'MULTI-OP' : 'SINGLE-OP');
 
             if (logType.score)

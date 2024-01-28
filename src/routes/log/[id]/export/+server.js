@@ -5,7 +5,7 @@ import { getContacts, getLog } from '$lib/server/database.js';
 import { error } from '@sveltejs/kit';
 import dateFormat from 'dateformat';
 
-const cabrilloBands = [50, 70, 144, 222, 432, 902, 1200, 2300, 3400, 5700, 10000].toReversed();
+const cabrilloBands = [50, 70, 144, 222, 432, 902, 1200, 2300, 3400, 5700, 10000].reverse();
 
 const generators = {
     cabrillo: {
@@ -72,7 +72,7 @@ export async function GET({ params, url }) {
 
     if (availableFormats.includes(format)) {
         const generator = generators[format];
-        const contacts = (await getContacts(params.id)).toReversed();
+        const contacts = (await getContacts(params.id)).reverse();
         const exporter = logType.exports?.[format] || prepareCsvExport;
         const { header, qsos } = exporter(log, contacts);
         
