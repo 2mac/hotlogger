@@ -5,9 +5,74 @@ import { getContacts, getLog } from '$lib/server/database.js';
 import { error } from '@sveltejs/kit';
 import dateFormat from 'dateformat';
 
+const adifMap = {
+    arrl_section: { key: 'arrl_sect' },
+    callsign: { key: 'station_callsign' },
+    class: { key: 'class' },
+
+    date: {
+        key: 'qso_date',
+        convert: (q, k) => dateFormat(q.time, 'yyyymmdd', true)
+    },
+    
+    freq_khz: {
+        key: 'band',
+        convert: (q, k) => freqToBand(q[k])
+    },
+
+    mode: { key: 'mode' },
+    op_call: { key: 'operator' },
+    other_call: { key: 'call' },
+    skcc_nr: { key: 'skcc' },
+    
+    time: {
+        key: 'time_on',
+        convert: (q, k) => dateFormat(q[k], 'HHMMss', true)
+    }
+};
+
+function adifField(key, value, type) {
+    value = value.toString();
+    return `<${key}:${value.length}${type ? `:${type}` : ''}>${value}`;
+}
+
+function adifRecord(entries, end='<eor>') {
+    return [
+        ...entries.map(([ key, { value, type } ]) => adifField(key, value, type)),
+        end
+    ];
+}
+
 const cabrilloBands = [50, 70, 144, 222, 432, 902, 1200, 2300, 3400, 5700, 10000].reverse();
 
 const generators = {
+    adif: {
+        extension: 'adi',
+        contentType: 'application/adif',
+        generate(header, qsos, log) {
+            qsos = qsos.map(qso => {
+                qso.callsign = log.callsign;
+                qso.date = qso.time;
+                
+                const entries = Object.entries(qso).filter(([k, v]) => Object.keys(adifMap).includes(k))
+                    .map(([k, v]) => {
+                        let { key, convert, type } = adifMap[k];
+                        convert = convert || (() => v);
+                        
+                        return [ key, { value: convert(qso, k), type }];
+                    });
+
+                return adifRecord(entries).join('');
+            });
+            
+            return [
+                '',
+                ...adifRecord([...header.entries()], '<eoh>'),
+                ...qsos
+            ].join('\r\n');
+        }
+    },
+    
     cabrillo: {
         extension: 'cbr',
         contentType: 'application/cabrillo',
@@ -76,7 +141,7 @@ export async function GET({ params, url }) {
         const exporter = logType.exports?.[format] || prepareCsvExport;
         const { header, qsos } = exporter(log, contacts);
         
-        return new Response(generator.generate(header, qsos), {
+        return new Response(generator.generate(header, qsos, log), {
             headers: {
                 'Content-Type': generator.contentType,
                 'Content-Disposition': `attachment; filename="${log.name}.${generator.extension}"`

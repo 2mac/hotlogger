@@ -9,6 +9,20 @@ const standardModes = [
 ];
 
 export const exportFormats = {
+    adif: {
+        format: 'adif',
+        name: 'ADIF',
+        defaultHeader(log, contacts) {
+            const logType = logTypes.find(t => t.id === log.type);
+            const header = new Map();
+            header.set('adif_ver', { value: '3.1.4' });
+            header.set('created_timestamp', { value: dateFormat(new Date(), 'yyyymmdd HHMMss', true) });
+            header.set('programid', { value: 'HotLogger' });
+
+            return header;
+        }
+    },
+    
     cabrillo: {
         format: 'cabrillo',
         name: 'Cabrillo 3.0',
@@ -111,7 +125,7 @@ export const logTypes = [
 
         score: (log, contacts) => {
             const pairs = new Set();
-            contacts.forEach(({ freq_khz, mode }) => pairs.add(`${freqToBand(freq_khz)}_${mode}}`));
+            contacts.forEach(({ freq_khz, mode }) => pairs.add(`${freqToBand(freq_khz)}${mode}}`));
             const mult = pairs.size;
             const qsoPoints = contacts.map(({ mode }) => mode === 'PH' ? 1 : 2).reduce((total, next) => total + next, 0);
             const powerMult = log.custom?.qrp ? 2 : 1;
@@ -119,6 +133,18 @@ export const logTypes = [
         },
 
         exports: {
+            adif: (log, contacts) => {
+                const header = exportFormats.adif.defaultHeader(log, contacts);
+                const qsos = contacts.map(qso => {
+                    qso.class = qso.custom.class;
+                    qso.arrl_section = qso.custom.arrl_section;
+
+                    return qso;
+                });
+
+                return { header, qsos };
+            },
+            
             cabrillo: (log, contacts) => {
                 const header = exportFormats.cabrillo.defaultHeader(log, contacts);
                 const qsos = contacts.map(qso => {
