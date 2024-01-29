@@ -9,7 +9,7 @@ const cabrilloBands = [50, 70, 144, 222, 432, 902, 1200, 2300, 3400, 5700, 10000
 
 const generators = {
     cabrillo: {
-        extension: 'cabrillo',
+        extension: 'cbr',
         contentType: 'application/cabrillo',
         generate(header, qsos) {
             header = [
