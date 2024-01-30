@@ -31,7 +31,7 @@
             <h3>{logType.name} Settings</h3>
 
             <div class="fields">
-                {#each logType.customFields as { key, label, type, required }}
+                {#each logType.customFields as { key, label, type, required, placeholder }}
                     {#if type === 'address'}
                         <div class="label">Address</div>
                         <div>
@@ -50,7 +50,7 @@
                         {#if type === 'checkbox'}
                             <input {type} name="c:{key}" checked={log.custom?.[key]} {required} />
                         {:else}
-                            <input {type} name="c:{key}" value={log.custom?.[key] || ''} {required} />
+                            <input {type} name="c:{key}" value={log.custom?.[key] || ''} {required} {placeholder} />
                         {/if}
                     {/if}
                 {/each}

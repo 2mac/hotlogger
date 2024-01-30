@@ -21,8 +21,12 @@ const adifMap = {
     },
 
     mode: { key: 'mode' },
+    my_sig: { key: 'my_sig' },
+    my_sig_info: { key: 'my_sig_info' },
     op_call: { key: 'operator' },
     other_call: { key: 'call' },
+    sig: { key: 'sig' },
+    sig_info: { key: 'sig_info' },
     skcc_nr: { key: 'skcc' },
     
     time: {
@@ -32,7 +36,10 @@ const adifMap = {
 };
 
 function adifField(key, value, type) {
-    value = value.toString();
+    value = value?.toString() || '';
+    if (value.length === 0)
+        return '';
+    
     return `<${key}:${value.length}${type ? `:${type}` : ''}>${value}`;
 }
 

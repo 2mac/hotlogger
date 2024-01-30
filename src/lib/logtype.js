@@ -86,6 +86,35 @@ export const logTypes = [
     },
 
     {
+        id: 3,
+        name: 'Parks on the Air',
+        display: true,
+        inputs: [ 'other_call', 'qth', 'rst_sent', 'rst_recd', 'c:pota_park', 'freq_khz', 'mode', 'memo' ],
+        displayFields: [ 'date', 'time', 'other_call', 'freq_khz', 'mode', 'qth', 'rst_sent', 'rst_recd', 'c:pota_park', 'memo' ],
+        modes: standardModes,
+
+        customFields: [
+            { key: 'pota_park', label: 'Park Reference', type: 'text', placeholder: 'K-1234', required: true }
+        ],
+
+        exports: {
+            adif: (log, contacts) => {
+                const header = exportFormats.adif.defaultHeader(log, contacts);
+                const qsos = contacts.map(qso => {
+                    qso.my_sig = 'POTA';
+                    qso.my_sig_info = log.custom?.pota_park;
+                    qso.sig = 'POTA';
+                    qso.sig_info = qso.custom.pota_park;
+
+                    return qso;
+                });
+
+                return { header, qsos };
+            }
+        }
+    },
+
+    {
         id: 1,
         name: 'Straight Key Century Club',
         display: true,
@@ -190,6 +219,7 @@ export const fieldNames = {
     'memo': 'Memo',
     'c:arrl_section': 'Section',
     'c:class': 'Class',
+    'c:pota_park': 'Park 2 Park',
     'c:skcc_nr': 'SKCC #'
 };
 

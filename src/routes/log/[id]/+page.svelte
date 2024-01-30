@@ -240,6 +240,7 @@
                     <OptionalInput name="qth" {inputs} />
                     <OptionalInput name="c:class" {inputs} maxlength="4" required />
                     <OptionalInput name="c:arrl_section" {inputs} maxlength="3" required />
+                    <OptionalInput name="c:pota_park" {inputs} width="6" />
                     <OptionalInput name="c:skcc_nr" {inputs} />
                     <OptionalInput name="memo" {inputs} width="50" />
 
