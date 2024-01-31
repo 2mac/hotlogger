@@ -5,6 +5,13 @@ multi-user logging and multiple contest formats.
 
 ## Developing
 
+This app optionally utilizes [NVM][3].
+
+```bash
+    #if using nvm, and not running automatically
+    nvm use 
+```
+
 This app requires [PocketBase][1].
 
 ```bash
@@ -35,3 +42,4 @@ Innovation License, version 1.0. See [COPYING](COPYING) for details.
 
 [1]: https://pocketbase.io/
 [2]: https://gnu.org/philosophy/free-sw.html
+[3]: https://github.com/nvm-sh/nvm/tree/master
