@@ -3,7 +3,7 @@
     import { page } from "$app/stores";
     import { enhance } from "$app/forms";
     import Modal from "$lib/Modal.svelte";
-    import { exportFormats, logTypes, fieldNames, getContactData } from "$lib/logtype";
+    import { exportFormats, logTypes, contactFields } from "$lib/logtype";
     import { contacts } from "$lib/store";
     import { onDestroy, onMount } from "svelte";
     import { io } from 'socket.io-client';
@@ -104,9 +104,11 @@
     const inputs = logType.inputs;
     contacts.set($page.data.contacts);
 
-    let columns = logType.displayFields;
+    let columns = [ 'date', 'time', 'other_call', ...logType.displayFields ];
     if ($page.data.log.shared)
         columns = [...columns, 'op_call'];
+
+    columns = columns.map(k => contactFields[k]);
 
     const bands = bandChoices(logType.bands || commonBands);
 
@@ -145,7 +147,7 @@
                         <th>#</th>
                         
                         {#each columns as column}
-                            <th>{fieldNames[column]}</th>
+                            <th>{column.label}</th>
                         {/each}
                     </tr>
                 </thead>
@@ -159,7 +161,7 @@
                             <td>{$contacts.length - i}</td>
                             
                             {#each columns as column}
-                                <td>{getContactData(contact, column)}</td>
+                                <td>{column.data(contact)}</td>
                             {/each}
                         </tr>
                     {/each}
@@ -227,7 +229,7 @@
                                         const skipInputs = ['other_call', 'freq_khz', 'mode'];
 
                                         inputs.filter(i => !skipInputs.includes(i)).forEach(input => {
-                                            formInputs[input].value = getContactData(contact, input);
+                                            formInputs[input].value = contactFields[input].data(contact);
                                         });
                                     }
                                 }
@@ -363,44 +365,44 @@
             <table>
                 {#each columns as column}
                     <tr>
-                        <th>{fieldNames[column]}</th>
+                        <th>{column.label}</th>
                         <td>
-                            {#if column === 'other_call'}
+                            {#if column.key === 'other_call'}
                                 <input type="text" name="other_call" autocomplete="off" required 
                                     value={editContact.other_call}
                                     on:input={e => {
                                         const t = e.target;
                                         t.value = t.value.toUpperCase();
                                     }} />
-                            {:else if column === 'date'}
-                                <input type="date" name="date" value={dateFormat(editContact['time'], 'yyyy-mm-dd', true)} required />
-                            {:else if column === 'time'}
-                                <input type="text" name="time" value={dateFormat(editContact[column], 'HHMM', true)} 
-                                    pattern="[0-9]{'{'}2{'}'}:?[0-9]{'{'}2{'}'}" required autocomplete="off" />
-                            {:else if column === 'band'}
+                            {:else if column.key === 'band'}
                                 <select name="freq_khz">
                                     {#each logType.bands as band}
                                         <option value={bandToFreq(band)} selected={freqToBand(editContact.freq_khz) === band}>{band}</option>
                                     {/each}
                                 </select>
-                            {:else if column === 'mode' && logType.restrictModes}
+                            {:else if column.key === 'mode' && logType.restrictModes}
                                 <select name="mode">
                                     {#each logType.modes as mode}
                                         <option value={mode} selected={editContact.mode === mode}>{mode}</option>
                                     {/each}
                                 </select>
                             {:else}
-                                <input type="text" name={column} value={getContactData(editContact, column)} autocomplete="off" />
+                                <input type={column.type}
+                                    name={column.key}
+                                    value={column.data(editContact)}
+                                    required={column.required}
+                                    pattern={column.pattern}
+                                    autocomplete="off" />
                             {/if}
                         </td>
                     </tr>
                 {/each}
             </table>
 
+            <button>Save Contact</button>
             <button formaction="?/delete" on:click={e => {
                 confirm('Really delete this contact?') || e.preventDefault();
             }}>Delete Contact</button>
-            <button>Save Contact</button>
         {/if}
     </form>
 </Modal>

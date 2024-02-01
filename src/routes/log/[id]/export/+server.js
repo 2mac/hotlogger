@@ -1,6 +1,6 @@
 
 import { freqToBand } from '$lib/bands.js';
-import { exportFormats, getContactData, logTypes } from '$lib/logtype.js';
+import { contactFields, exportFormats, logTypes } from '$lib/logtype.js';
 import { getContacts, getLog } from '$lib/server/database.js';
 import { error } from '@sveltejs/kit';
 import dateFormat from 'dateformat';
@@ -125,7 +125,7 @@ function prepareCsvExport(log, contacts) {
     const qsos = [];
 
     contacts.forEach(contact => {
-        qsos.push(logType.displayFields.map(field => getContactData(contact, field)).join(','));
+        qsos.push(logType.displayFields.map(field => contactFields[field].data(contact)).join(','));
     });
     
     return {

@@ -65,10 +65,71 @@ export const exportFormats = {
         name: 'CSV',
         defaultHeader(log, contacts) {
             const logType = logTypes.find(t => t.id === log.type);
-            return logType.displayFields.map(field => fieldNames[field]);
+            return logType.displayFields.map(field => contactFields[field].label);
         }
     }
 };
+
+export const contactFields = {
+    band: {
+        label: 'Band',
+        data: contact => freqToBand(contact.freq_khz)
+    },
+    
+    date: {
+        label: 'Date',
+        type: 'date',
+        required: true,
+        data: contact => dateFormat(contact.time, 'yyyy-mm-dd', true)
+    },
+
+    freq_khz: { label: 'Freq (kHz)' },
+    memo: { label: 'Memo' },
+    mode: { label: 'Mode' },
+    name: { label: 'Name' },
+    op_call: { label: 'Operator' },
+    other_call: { label: 'Call', required: true },
+    qth: { label: 'QTH' },
+    rst_recd: { label: "RST Rec'd", pattern: '[1-5][0-9]{1,2}[A-Za-z]?' },
+    rst_sent: { label: 'RST Sent', pattern: '[1-5][0-9]{1,2}[A-Za-z]?' },
+
+    time: {
+        label: 'Time',
+        required: true,
+        data: contact => dateFormat(contact.time, 'HHMM', true),
+        pattern: '[0-9]{2}:?[0-9]{2}'
+    },
+
+    'c:arrl_section': {
+        label: 'Section',
+        required: true,
+        data: contact => contact.custom.arrl_section
+    },
+    
+    'c:class': {
+        label: 'Class',
+        required: true,
+        data: contact => contact.custom.class
+    },
+    
+    'c:pota_park': {
+        label: 'Park 2 Park',
+        data: contact => contact.custom.pota_park
+    },
+    
+    'c:skcc_nr': {
+        label: 'SKCC #',
+        required: true,
+        data: contact => contact.custom.skcc_nr,
+        pattern: '[0-9]+[A-Za-z]?'
+    }
+};
+
+Object.entries(contactFields).forEach(([k, v]) => {
+    v.data = v.data || (contact => contact[k]);
+    v.key = v.key || k;
+    v.type = v.type || 'text';
+});
 
 export const logTypes = [
     {
@@ -81,7 +142,7 @@ export const logTypes = [
             'freq_khz', 'mode',
             'memo'
         ],
-        displayFields: [ 'date', 'time', 'other_call', 'freq_khz', 'mode', 'name', 'qth', 'rst_sent', 'rst_recd', 'memo' ],
+        displayFields: [ 'freq_khz', 'mode', 'name', 'qth', 'rst_sent', 'rst_recd', 'memo' ],
         modes: standardModes
     },
 
@@ -90,7 +151,7 @@ export const logTypes = [
         name: 'Parks on the Air',
         display: true,
         inputs: [ 'other_call', 'qth', 'rst_sent', 'rst_recd', 'c:pota_park', 'freq_khz', 'mode', 'memo' ],
-        displayFields: [ 'date', 'time', 'other_call', 'freq_khz', 'mode', 'qth', 'rst_sent', 'rst_recd', 'c:pota_park', 'memo' ],
+        displayFields: [ 'freq_khz', 'mode', 'qth', 'rst_sent', 'rst_recd', 'c:pota_park', 'memo' ],
         modes: standardModes,
 
         customFields: [
@@ -124,7 +185,7 @@ export const logTypes = [
             'freq_khz', 'memo',
             'c:skcc_nr'
         ],
-        displayFields: [ 'date', 'time', 'other_call', 'freq_khz', 'c:skcc_nr', 'name', 'qth', 'rst_sent', 'rst_recd', 'memo' ],
+        displayFields: [ 'freq_khz', 'c:skcc_nr', 'name', 'qth', 'rst_sent', 'rst_recd', 'memo' ],
         modes: [ 'CW' ],
         restrictModes: true
     },
@@ -134,7 +195,7 @@ export const logTypes = [
         name: 'Winter Field Day',
         display: true,
         inputs: [ 'other_call', 'c:class', 'c:arrl_section', 'freq_khz', 'mode' ],
-        displayFields: [ 'date', 'time', 'other_call', 'c:class', 'c:arrl_section', 'band', 'mode' ],
+        displayFields: [ 'c:class', 'c:arrl_section', 'band', 'mode' ],
         modes: [ 'PH', 'CW', 'DG' ],
         restrictModes: true,
         bands: contestBands,
@@ -203,38 +264,3 @@ export const logTypes = [
         }
     }
 ];
-
-export const fieldNames = {
-    'date': 'Date',
-    'time': 'Time',
-    'other_call': 'Call',
-    'name': 'Name',
-    'qth': 'QTH',
-    'rst_sent': 'RST Sent',
-    'rst_recd': "RST Rec'd",
-    'freq_khz': 'Frequency',
-    'band': 'Band',
-    'mode': 'Mode',
-    'op_call': 'Operator',
-    'memo': 'Memo',
-    'c:arrl_section': 'Section',
-    'c:class': 'Class',
-    'c:pota_park': 'Park 2 Park',
-    'c:skcc_nr': 'SKCC #'
-};
-
-export function getContactData(contact, column) {
-    if (column.startsWith('c:')) {
-        if (contact.custom)
-            return contact.custom[column.slice(2)];
-        else
-            return null;
-    } else {
-        const data = column === 'date' ? dateFormat(contact.time, 'yyyy-mm-dd', true) :
-            column === 'time' ? dateFormat(contact.time, 'HHMM', true) :
-            column === 'band' ? freqToBand(contact.freq_khz) :
-            contact[column];
-
-        return data;
-    }
-}
