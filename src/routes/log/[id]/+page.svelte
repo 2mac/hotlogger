@@ -14,6 +14,7 @@
     import { get } from "svelte/store";
     import { arrlSections } from "$lib/arrlSection";
     import SectionChecklist from "./SectionChecklist.svelte";
+    import ConnectionStatus from "./ConnectionStatus.svelte";
 
     let myCall = $page.data.callsign;
     const logCall = $page.data.log.callsign;
@@ -285,9 +286,9 @@
         </div>
         
         {#if $page.data.log.shared}
-            <div>
-                Socket status: {socketStatus}
-            </div>
+            <ConnectionStatus 
+                bind:connectionStatus={socketStatus}
+                explicit={true}></ConnectionStatus>
 
             <div>
                 <form method="POST" action="?/changeCall">
