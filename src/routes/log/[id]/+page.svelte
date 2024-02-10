@@ -289,7 +289,6 @@
             <ConnectionStatus 
                 bind:connectionStatus={socketStatus}
                 explicit={true}></ConnectionStatus>
-
             <div>
                 <form method="POST" action="?/changeCall">
                     <label>
