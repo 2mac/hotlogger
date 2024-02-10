@@ -21,7 +21,8 @@
 
 <style>
     img {
-        max-height: 50vh;
+        padding-top: 10vh;
+        height: 30vh;
         margin: auto;
     }
 
