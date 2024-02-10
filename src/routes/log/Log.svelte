@@ -13,7 +13,7 @@
         <div class="log-name"><h3>{name}</h3></div>
         <div class="log-date">Created {created}</div>
 
-        <div class="log-type">{logTypes[type].name}</div>
+        <div class="log-type">{logTypes.find(t => t.id === type).name}</div>
         <div class="log-date">Last changed {updated}</div>
     </div>
 </a>
