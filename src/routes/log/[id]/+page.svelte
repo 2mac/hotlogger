@@ -15,6 +15,7 @@
     import { arrlSections } from "$lib/arrlSection";
     import SectionChecklist from "./SectionChecklist.svelte";
     import ConnectionStatus from "./ConnectionStatus.svelte";
+    import ContactCard from "./ContactCard.svelte"; 
 
     let myCall = $page.data.callsign;
     const logCall = $page.data.log.callsign;
