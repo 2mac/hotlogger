@@ -15,6 +15,7 @@
     import { arrlSections } from "$lib/arrlSection";
     import SectionChecklist from "./SectionChecklist.svelte";
     import ConnectionStatus from "./ConnectionStatus.svelte";
+    import ContactCard from "./ContactCard.svelte"; 
 
     let myCall = $page.data.callsign;
     const logCall = $page.data.log.callsign;
@@ -119,6 +120,7 @@
     let showEditModal = false;
     let duplicateText = '&nbsp;';
     let editContact;
+    let tableView = true; 
 
     let otherCall = '';
     let freqKhz;
@@ -139,8 +141,17 @@
     {/if}
 </h2>
 
+<div>
+    {#if tableView==true}
+        <button on:click={()=>{tableView=false}}>Show Cards</button>
+    {:else}
+        <button on:click={()=>{tableView=true}}>Show Table</button>
+    {/if}
+</div>
+
 <div class="container">
     <div class="log-layout">
+        {#if tableView==true}
         <div class="contacts-table scroll">
             <table>
                 <thead>
@@ -169,6 +180,14 @@
                 </tbody>
             </table>
         </div>
+        {:else}
+        <div class="card-container">
+            {#each $contacts as contact}
+                <ContactCard bind:contact={contact}></ContactCard>
+                
+            {/each}
+        </div>
+        {/if}
 
         {#if logType.preventDuplicates}
             <p style="color:red">{@html duplicateText}</p>
@@ -437,5 +456,16 @@
 
     form label {
         margin-right: 0.5em;
+    }
+
+    .card-container {
+        display: flex;
+        flex-direction: row;
+        max-width: 75vw;
+        overflow: scroll;
+        overflow-wrap: anywhere;
+        flex-wrap: nowrap;
+        align-items: center;
+        column-gap: 10px;
     }
 </style>
