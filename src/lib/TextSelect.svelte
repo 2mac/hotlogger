@@ -10,44 +10,49 @@
     let input;
     let showChoices = false;
 </script>
-
 <div>
-    <input type="text" {name} {placeholder} {autocomplete} {required} on:change
+    <div style="display:flex; flex-direction:column;">
+        <input type="text" {name} {placeholder} {autocomplete} {required} on:change
         bind:value={value}
         bind:this={input}
         on:click={() => { showChoices = true; }} />
+        <div>
+        {#if showChoices}
+        <ul>
+            {#each Object.entries(choices) as [text, choice]}
+                <li>
+                    <button type="button" on:click={() => {
+                        value = choice;
+                        input.value = choice;
+                        input.focus();
+                        input.dispatchEvent(new Event('change'));
+                        showChoices = false;
+                        }} >{text}</button>
+                </li>
+            {/each}
+        </ul>
+        {/if}
+    </div>
+
+</div>
 </div>
 
-{#if showChoices}
-    <ul>
-        {#each Object.entries(choices) as [text, choice]}
-            <li>
-                <button type="button" on:click={() => {
-                    value = choice;
-                    input.value = choice;
-                    input.focus();
-                    input.dispatchEvent(new Event('change'));
-                    showChoices = false;
-                    }} >{text}</button>
-            </li>
-        {/each}
-    </ul>
-{/if}
+
+
 
 <style>
     div {
-        position: relative;
         display: inline-block;
     }
     
     ul {
-        position: relative;
-        top: 0;
+        position: absolute;
         z-index: 99;
         border: thin solid;
         width: fit-content;
         margin: 5px;
         padding: 5px;
+        background-color: white;
     }
     
     li {
