@@ -12,12 +12,7 @@
         min-height: 40px;
     }
 
-    em {
-        color: firebrick;
-    }
-
     header {
-        border-bottom: thin solid;
         margin-bottom: 1em;
         display:flex; 
         justify-content: center;
