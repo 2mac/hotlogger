@@ -10,12 +10,11 @@
     let input;
     let showChoices = false;
 </script>
-<div>
+<div on:focusin={()=>{showChoices=true}} on:focusout={()=>{showChoices=false}}>
     <div style="display:flex; flex-direction:column;">
         <input type="text" {name} {placeholder} {autocomplete} {required} on:change
         bind:value={value}
-        bind:this={input}
-        on:click={() => { showChoices = true; }} />
+        bind:this={input}/>
         <div>
         {#if showChoices}
         <ul>
