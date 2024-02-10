@@ -1,4 +1,5 @@
 <script>
+    export let id; 
     export let value;
     export let choices;
 
@@ -12,7 +13,7 @@
 </script>
 <div on:focusin={()=>{showChoices=true}} on:focusout={()=>{showChoices=false}}>
     <div style="display:flex; flex-direction:column;">
-        <input type="text" {name} {placeholder} {autocomplete} {required} on:change
+        <input id={id} type="text" {name} {placeholder} {autocomplete} {required} on:change
         bind:value={value}
         bind:this={input}/>
         <div>
