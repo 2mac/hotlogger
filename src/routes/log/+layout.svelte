@@ -1,5 +1,5 @@
 <header>
-    <img src="hotlogger-main-long.png" alt="Hot Logger">
+    <img src="/hotlogger-main-long.png" alt="Hot Logger">
 </header>
 
 <main>
