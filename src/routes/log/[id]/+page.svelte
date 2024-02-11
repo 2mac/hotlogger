@@ -460,7 +460,6 @@
     .card-container {
         display: flex;
         flex-direction: row;
-        max-width: 75vw;
         overflow: scroll;
         overflow-wrap: anywhere;
         flex-wrap: nowrap;
