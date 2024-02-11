@@ -1,5 +1,4 @@
 <script>
-
     import { page } from "$app/stores";
     import { enhance } from "$app/forms";
     import Modal from "$lib/Modal.svelte";
