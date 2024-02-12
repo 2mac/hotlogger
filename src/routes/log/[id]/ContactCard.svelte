@@ -67,7 +67,13 @@ margin:4px;"
     style="margin-left:auto; justify-content: space-between;"
   >
     <p style="color: lightgray;">{contact.time}</p>
-    <em><b>{timestamp}</b> <cite>ago</cite></em>
+    {#if timestamp}
+    <em style="    background-color: aliceblue;
+    border-bottom-right-radius: 0.5em;
+    border-bottom-left-radius: 0.5em;
+    border: solid;
+    border-color: aliceblue;"><b>{timestamp}</b> <cite>ago</cite></em>
+    {/if}
   </div>
   <div
     style="display:flex; flex-direction:row; align-items:center; gap:4px; width: 100%"
