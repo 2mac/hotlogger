@@ -11,7 +11,7 @@
     export let required = false;
 </script>
 
-<span>
+<div style="display:inline">
     <label for={name}>{label}:</label>
     {#if restrict}
         <select {id} {name} {required} bind:value={value} on:change>
@@ -22,12 +22,11 @@
     {:else}
         <TextSelect {id} {name} {choices} bind:value={value} on:change {required} />
     {/if}
-</span>
+</div>
 
 <style>
-    span {
-        max-width: 100%;
-        margin: 0.5em 0.5em 0.5em 0;
+    div {
         white-space: nowrap;
+        flex-grow:1; 
     }
 </style>
