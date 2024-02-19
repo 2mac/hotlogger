@@ -182,7 +182,7 @@
         {:else}
         <div class="card-container">
             {#each $contacts as contact}
-                <ContactCard bind:contact={contact}></ContactCard>
+                <ContactCard bind:contact={contact} bind:columns={columns}></ContactCard>
                 
             {/each}
         </div>

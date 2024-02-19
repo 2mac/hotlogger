@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
 
+  export let columns;
   export let contact;
   let timestamp;
   let doAutoUpdate = true;
@@ -59,147 +60,79 @@ border-color: black;
 border-width: thin;
 border-radius: .5em;
 min-width: 300px;
+aspect-ratio: 1/1; 
 gap: 4px; 
-margin:4px;"
+margin:4px;
+padding-bottom:4px;
+background:beige;
+overflow:hidden;"
 >
-  <div
-    class="inline-section"
-    style="margin-left:auto; justify-content: space-between;"
-  >
-    <p style="color: lightgray;">{contact.time}</p>
+  <div style="margin-left:auto; justify-content: space-between; ">
     {#if timestamp}
-    <em style="    background-color: aliceblue;
-    border-bottom-right-radius: 0.5em;
-    border-bottom-left-radius: 0.5em;
-    border: solid;
-    border-color: aliceblue;"><b>{timestamp}</b> <cite>ago</cite></em>
+      <p
+        style="    background-color: aliceblue;
+        border-top-right-radius: 0.5em;
+        border-bottom-left-radius: 0.5em;
+        border-top: solid black thin;
+        border-bottom: solid black thin;
+        border-left: solid black thin;
+        padding-right: 2px;
+        padding-left: 2px;"
+      >
+        <b>{timestamp}</b> <em>ago</em>
+      </p>
     {/if}
   </div>
   <div
-    style="display:flex; flex-direction:row; align-items:center; gap:4px; width: 100%"
+    style="display:flex; flex-direction: row; flex-wrap: wrap; overflow-y:scroll; border-top:solid black thin; border-bottom: solid black thin"
   >
-    <div
-      style="display: flex;
-    flex-grow: 1;
-    flex-direction: row;
-    align-items: flex-end;
-    border: chartreuse;
-    width: 100%;
-    border-top-right-radius: 0.5em;
-    border-bottom-right-radius: 0.5em;
-    background: chartreuse;
-    padding: 4px; 
-    align-items: center"
-    >
-      <div>
-        <p style="color:darkgreen; font-size:small">sent</p>
+    <!--<div style="border-bottom: solid black thin; width:100%"></div>-->
+    {#each columns as column}
+      <div class="inline-section" style="border-bottom:solid black thin;">
+        <div
+          style="width:5em; border-bottom: solid grey thin; background: grey; color:white; padding-left:2px; padding-right:2px"
+        >
+          <em>{column.label}</em>
+        </div>
+        <div style="display: flex; flex-direction:row;">
+          <div
+            style="width:1em; display: flex; flex-direction:column; background: white"
+          >
+            <div style="flex-grow:1; background: grey"></div>
+            <div
+              style="flex-grow:1; border-right: solid grey thin;border-bottom: solid grey thin; border-bottom-right-radius: 90%; background:grey"
+            ></div>
+          </div>
+          <div
+            style="width:1em; display:flex; flex-direction:column; background: grey"
+          >
+            <div
+              style="flex-grow:1; border-top: solid grey thin; border-top-left-radius: 90%; background:white"
+            ></div>
+            <div style="flex-grow:1; background:white"></div>
+          </div>
+        </div>
+        <div
+          style="flex-grow:1; border-top: solid grey thin; background: white"
+        >
+          <p>{column.data(contact)}</p>
+        </div>
       </div>
-      <div
-        style="display:flex; flex-direction:column; align-items:flex-end; margin-left: auto;"
-      >
-        <p>
-          <b>{contact.op_call}</b>
-        </p>
-        <p>
-          <b>{contact.rst_recd}</b>
-        </p>
-      </div>
-    </div>
-    <div>
-      <p>⇌</p>
-      <p>⇌</p>
-    </div>
-    <div
-      style="display: flex;
-    flex-grow: 1;
-    flex-direction: row;
-    align-items: flex-start;
-    border: moccasin;
-    width: 100%;
-    border-top-left-radius: 0.5em;
-    border-bottom-left-radius: 0.5em;
-    background: moccasin;
-    padding: 4px;
-    align-items: center"
-    >
-      <div
-        style="display:flex; flex-direction:column; align-items:flex-start; margin-right: auto;"
-      >
-        <p>{contact.other_call}</p>
-        <p>{contact.rst_sent}</p>
-      </div>
-
-      <div>
-        <p style="color:brown; font-size:small;">recv'd</p>
-      </div>
-    </div>
+    {/each}
   </div>
-  <div
-  style="display: flex;
-width: 100%;
-background: moccasin;"
->
-  <div
-    style="    display: flex;
-    gap: 4px;
-    width: 100%;
-    justify-content: center;
-    flex-direction: row;
-    align-items: center;"
-  >
-    <p style="font-size: x-small; word-wrap:normal; color: brown;">
-      QTH
-    </p>
-    <p>{contact.qth}</p>
-  </div>
-</div>
-  <div
-    style="display: flex;
-  width: 100%;
-  background: lightgray;"
-  >
-    <div
-      style="    display: flex;
-      gap: 4px;
-      width: 100%;
-      justify-content: center;
-      flex-direction: row;
-      align-items: center;"
-    >
-      <p style="font-size: x-small; word-wrap:normal; color: darkgray;">
-        Freq/Mode
-      </p>
-      <p>{contact.freq_khz}kHz/{contact.mode}</p>
-    </div>
-  </div>
-  <div
-    style="width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: lightgray;"
-  >
-    <p style="font-size: small; color:darkgray">memo</p>
-    <textarea
-      disabled
-      rows="5"
-      style="line-height: 1.1; width:95%; resize:none;">{contact.memo}</textarea
-    >
-  </div>
-  <div></div>
 </div>
 
 <style>
   .inline-section {
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding-left: 5px;
-    padding-right: 5px;
-    width: 95%;
   }
 
   b {
+    display: inline;
+    width: fit-content;
     margin: 0px;
   }
   em {
@@ -207,5 +140,27 @@ background: moccasin;"
   }
   p {
     margin: 0px;
+    display: inline;
+    width: fit-content;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: grey;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: darkgray;
+    border-radius: 2em;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: slategrey;
   }
 </style>
