@@ -3,11 +3,19 @@
 
   export let columns;
   export let contact;
+
   let timestamp;
   let doAutoUpdate = true;
-  console.log(JSON.stringify(contact));
+  let bgcolor = "beige";
 
   onMount(() => {
+    if ((new Date() - new Date(contact?.time)) / 1000 < 100) {
+      bgcolor = "lightgreen";
+      setTimeout(() => {
+        bgcolor = "beige";
+      }, 500);
+    } else {
+    }
     timestamp = timeSince(contact.time);
     autoUpdater();
   });
@@ -49,24 +57,7 @@
   }
 </script>
 
-<div
-  id="container"
-  class="main-bg"
-  style="    display: flex;
-flex-direction: column;
-align-items: center;
-border: solid;
-border-color: black;
-border-width: thin;
-border-radius: .5em;
-min-width: 300px;
-aspect-ratio: 1/1; 
-gap: 4px; 
-margin:4px;
-padding-bottom:4px;
-background:beige;
-overflow:hidden;"
->
+<div id="container" class="main-bg" style="background: {bgcolor}">
   <div style="margin-left:auto; justify-content: space-between; ">
     {#if timestamp}
       <p
@@ -77,7 +68,8 @@ overflow:hidden;"
         border-bottom: solid black thin;
         border-left: solid black thin;
         padding-right: 2px;
-        padding-left: 2px;"
+        padding-left: 4px;
+        padding-bottom: 2px;"
       >
         <b>{timestamp}</b> <em>ago</em>
       </p>
@@ -144,6 +136,25 @@ overflow:hidden;"
     width: fit-content;
   }
 
+  .main-bg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: solid;
+    border-color: black;
+    border-width: thin;
+    border-radius: 0.5em;
+    min-width: 300px;
+    aspect-ratio: 1/1;
+    gap: 4px;
+    margin: 4px;
+    padding-bottom: 4px;
+    background: beige;
+    overflow: hidden;
+    transition-property: background;
+    transition-duration: 2s;
+  }
+
   ::-webkit-scrollbar {
     width: 10px;
   }
@@ -151,6 +162,7 @@ overflow:hidden;"
   /* Track */
   ::-webkit-scrollbar-track {
     background: grey;
+    border: solid rgb(56, 56, 56) thin;
   }
 
   /* Handle */
@@ -161,6 +173,6 @@ overflow:hidden;"
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: slategrey;
+    background: rgb(57, 64, 70);
   }
 </style>
