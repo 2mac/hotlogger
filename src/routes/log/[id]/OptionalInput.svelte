@@ -14,9 +14,9 @@
 
 {#if inputs.includes(name)}
     <span>
-        <label>
+        <label style="flex-grow:1">
             {contactFields[name].label}:
-            <input {type} {name} {maxlength} {pattern} value={value || ''} style="flex-grow:1" autocomplete="off" {required} />
+            <input {type} {name} {maxlength} {pattern} value={value || ''} style="flex-grow:1; min-width:{width}" autocomplete="off" {required} />
         </label>
     </span>
 {/if}
@@ -25,6 +25,10 @@
     span {
         display:flex;
         white-space: nowrap;
+        flex-grow:1;
+    }
+    label {
+        display:flex; 
         flex-grow:1;
     }
 </style>

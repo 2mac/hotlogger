@@ -146,10 +146,11 @@ justify-content: space-between;"
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
-    border-bottom: solid red thin"
+    justify-content: space-between;
+    border-bottom: solid red thin; 
+    gap: 4px"
   >
-    <h2 style="margin-top: .25em; margin-bottom: .25em">
+    <h2 style="margin-top: .25em; margin-bottom: .25em;">
       {$page.data.log.name}
       {#if $page.data.log.shared && logCall !== myCall}
         ({logCall})
@@ -179,24 +180,12 @@ justify-content: space-between;"
       </div>
     </div>
   </div>
-  <div style="margin-bottom: 2px">
+  <div
+    style="margin-bottom: 2px; background:lightcyan; padding:2px; border-radius:0.25em; border: solid lightgrey thin"
+  >
     {#if $page.data.log.shared}
       <div style="display:flex">
         <h3 style="margin:2px">Active Stations</h3>
-        <div>
-          <form
-            method="POST"
-            action="?/changeCall"
-            style="display: flex;
-      flex-direction: row;"
-          >
-            <label>
-              Operator:
-              <input type="text" name="callsign" value={myCall} />
-            </label>
-            <button>Change</button>
-          </form>
-        </div>
       </div>
 
       <div>
@@ -235,19 +224,45 @@ justify-content: space-between;"
       {/if}
     {/if}
   </div>
-  <div>
-    {#if tableView == true}
-      <button
-        on:click={() => {
-          tableView = false;
-        }}>Show Cards</button
-      >
-    {:else}
-      <button
-        on:click={() => {
-          tableView = true;
-        }}>Show Table</button
-      >
+  <div style="display:inline-flex; gap: 4px; justify-content: space-between;">
+    <div style="width:max-content;">
+      {#if tableView == true}
+        <button
+          style="width:max-content;"
+          on:click={() => {
+            tableView = false;
+          }}>Show Cards</button
+        >
+      {:else}
+        <button
+          style="width:max-content;"
+          on:click={() => {
+            tableView = true;
+          }}>Show Table</button
+        >
+      {/if}
+    </div>
+
+    {#if $page.data.log.shared}
+      <div>
+        <form
+          method="POST"
+          action="?/changeCall"
+          style="display: inline-flex;
+            flex-direction: row;"
+        >
+          <label style="display:flex;">
+            Operator:
+            <input
+              style="width:120px"
+              type="text"
+              name="callsign"
+              value={myCall}
+            />
+          </label>
+          <button>Change</button>
+        </form>
+      </div>
     {/if}
   </div>
 
@@ -303,9 +318,7 @@ justify-content: space-between;"
       flex-wrap: wrap;
       justify-content: flex-start;
       align-items: center;
-      align-content: flex-start;
-      width: 90vw;
-      overflow: scroll;"
+      align-content: flex-start;"
       >
         <form
           method="POST"
@@ -334,125 +347,128 @@ justify-content: space-between;"
             };
           }}
         >
-          <div>
-            <label>
-              Call Sign:
-              <input
-                type="text"
-                id="other_call"
-                name="other_call"
-                autocomplete="off"
+          <div style="display:flex; flex-direction:column; gap: 4px;">
+            <div style="display:flex; flex-wrap:wrap; gap:4px;">
+              <QuickInput
+                id="freq_khz"
+                name="freq_khz"
+                label="Freq (kHz)"
+                choices={bands}
+                bind:value={freqKhz}
+                width="2"
+                restrict={logType.restrictBands}
                 required
-                bind:value={otherCall}
-                on:input={(e) => {
-                  const t = e.target;
-                  t.value = t.value.toUpperCase();
-
-                  if (logType.preventDuplicates) {
-                    if (t.value.length < 3) {
-                      duplicateText = "&nbsp;";
-                    } else {
-                      const dupes = get(contacts)
-                        .filter((c) => c.other_call.includes(t.value))
-                        .filter(
-                          (c) =>
-                            freqToBand(c.freq_khz) === freqToBand(freqKhz) &&
-                            c.mode === mode
-                        )
-                        .map((c) => c.other_call)
-                        .sort();
-                      const exact = dupes.find((c) => c === t.value);
-
-                      if (exact)
-                        duplicateText = "<strong>DUPLICATE:</strong> " + exact;
-                      else if (dupes.length !== 0)
-                        duplicateText =
-                          "Potential duplicates: " + dupes.join(", ");
-                      else duplicateText = "&nbsp;";
-                    }
-                  }
-                }}
                 on:change={(e) => {
-                  if (logType.autocomplete) {
-                    const call = e.target.value.toUpperCase();
-                    const contact = get(contacts).find(
-                      (c) => c.other_call === call
-                    );
-
-                    if (contact) {
-                      const formInputs =
-                        document.getElementById("new-contact-form").elements;
-                      const skipInputs = ["other_call", "freq_khz", "mode"];
-
-                      inputs
-                        .filter((i) => !skipInputs.includes(i))
-                        .forEach((input) => {
-                          formInputs[input].value =
-                            contactFields[input].data(contact);
-                        });
-                    }
-                  }
+                  const value = e.target.value;
+                  socket?.emit("change-band", freqToBand(value));
                 }}
               />
-            </label>
+              <QuickInput
+                id="mode"
+                name="mode"
+                label="Mode"
+                choices={modes}
+                bind:value={mode}
+                width="2"
+                restrict={logType.restrictModes}
+                required
+                on:change={(e) => {
+                  const value = e.target.value;
+                  socket?.emit("change-mode", value);
+                }}
+              />
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:4px">
+              <label style="display:flex; flex-grow:1; margin:0px">
+                Call Sign:
+                <input
+                  type="text"
+                  id="other_call"
+                  name="other_call"
+                  autocomplete="off"
+                  style="flex-grow:1"
+                  required
+                  bind:value={otherCall}
+                  on:input={(e) => {
+                    const t = e.target;
+                    t.value = t.value.toUpperCase();
 
-            <OptionalInput
-              name="rst_sent"
-              {inputs}
-              maxlength="4"
-              pattern="[1-5][0-9]{'{'}1,2{'}'}[A-Za-z]?"
-            />
-            <OptionalInput
-              name="rst_recd"
-              {inputs}
-              maxlength="4"
-              pattern="[1-5][0-9]{'{'}1,2{'}'}[A-Za-z]?"
-            />
-            <OptionalInput name="name" {inputs} />
-            <OptionalInput name="qth" {inputs} />
-            <OptionalInput name="c:class" {inputs} maxlength="4" required />
-            <OptionalInput
-              name="c:arrl_section"
-              {inputs}
-              maxlength="3"
-              required
-            />
-            <OptionalInput name="c:pota_park" {inputs} />
-            <OptionalInput name="c:skcc_nr" {inputs} />
-            <OptionalInput name="memo" {inputs} />
+                    if (logType.preventDuplicates) {
+                      if (t.value.length < 3) {
+                        duplicateText = "&nbsp;";
+                      } else {
+                        const dupes = get(contacts)
+                          .filter((c) => c.other_call.includes(t.value))
+                          .filter(
+                            (c) =>
+                              freqToBand(c.freq_khz) === freqToBand(freqKhz) &&
+                              c.mode === mode
+                          )
+                          .map((c) => c.other_call)
+                          .sort();
+                        const exact = dupes.find((c) => c === t.value);
 
-            <button>Save Contact</button>
-          </div>
+                        if (exact)
+                          duplicateText =
+                            "<strong>DUPLICATE:</strong> " + exact;
+                        else if (dupes.length !== 0)
+                          duplicateText =
+                            "Potential duplicates: " + dupes.join(", ");
+                        else duplicateText = "&nbsp;";
+                      }
+                    }
+                  }}
+                  on:change={(e) => {
+                    if (logType.autocomplete) {
+                      const call = e.target.value.toUpperCase();
+                      const contact = get(contacts).find(
+                        (c) => c.other_call === call
+                      );
 
-          <div>
-            <QuickInput
-              id="freq_khz"
-              name="freq_khz"
-              label="Freq (kHz)"
-              choices={bands}
-              bind:value={freqKhz}
-              width="4"
-              restrict={logType.restrictBands}
-              required
-              on:change={(e) => {
-                const value = e.target.value;
-                socket?.emit("change-band", freqToBand(value));
-              }}
-            />
-            <QuickInput
-              id="mode"
-              name="mode"
-              label="Mode"
-              choices={modes}
-              bind:value={mode}
-              width="4"
-              restrict={logType.restrictModes}
-              required
-              on:change={(e) => {
-                const value = e.target.value;
-                socket?.emit("change-mode", value);
-              }}
-            />
+                      if (contact) {
+                        const formInputs =
+                          document.getElementById("new-contact-form").elements;
+                        const skipInputs = ["other_call", "freq_khz", "mode"];
+
+                        inputs
+                          .filter((i) => !skipInputs.includes(i))
+                          .forEach((input) => {
+                            formInputs[input].value =
+                              contactFields[input].data(contact);
+                          });
+                      }
+                    }
+                  }}
+                />
+              </label>
+
+              <OptionalInput
+                name="rst_sent"
+                {inputs}
+                maxlength="4"
+                pattern="[1-5][0-9]{'{'}1,2{'}'}[A-Za-z]?"
+              />
+              <OptionalInput
+                name="rst_recd"
+                {inputs}
+                maxlength="4"
+                pattern="[1-5][0-9]{'{'}1,2{'}'}[A-Za-z]?"
+              />
+              <OptionalInput name="name" {inputs} />
+              <OptionalInput name="qth" {inputs} />
+              <OptionalInput name="c:class" {inputs} maxlength="4" required />
+              <OptionalInput
+                name="c:arrl_section"
+                {inputs}
+                maxlength="3"
+                required
+              />
+              <OptionalInput name="c:pota_park" {inputs} />
+              <OptionalInput name="c:skcc_nr" {inputs} />
+              <OptionalInput name="memo" {inputs} />
+
+              <button>Save Contact</button>
+            </div>
           </div>
         </form>
       </div>
@@ -552,8 +568,10 @@ justify-content: space-between;"
 
 <style>
   div.container {
-    display: grid;
-    grid-template-columns: 4fr 1fr;
+  }
+
+  div.container:nth-child(1) {
+    width: inherit;
   }
 
   div.sidebar {
@@ -585,11 +603,12 @@ justify-content: space-between;"
   .card-container {
     display: flex;
     flex-direction: row;
-    overflow: scroll;
+    overflow-x: scroll;
     overflow-wrap: anywhere;
     flex-wrap: nowrap;
     align-items: center;
     column-gap: 10px;
-    width: 89vw;
+    contain: inline-size;
+    margin-right: 0px;
   }
 </style>
