@@ -191,8 +191,13 @@ justify-content: space-between;"
   >
   <div use:collapseable={collapseShared} style="padding-bottom:20px">
 
-      <div style="display:flex">
+      <div style="display: flex;
+      justify-content: space-between;
+      align-items: flex-start;">
         <h3 style="margin:2px">Active Stations</h3>
+        {#if (stations.length > 0)}
+        <h4 style="margin:2px">({stations.length})</h4>
+        {/if}
       </div>
 
       <div>
@@ -285,7 +290,7 @@ justify-content: space-between;"
           style="display: inline-flex;
             flex-direction: row;"
         >
-          <label style="display:flex;     align-items: center;">
+          <label style="display:flex;  gap:2px;   align-items: center;">
             Operator
             <input
               style="width:80px"
