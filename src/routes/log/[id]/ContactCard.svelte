@@ -9,24 +9,27 @@
   let bgcolor = "beige";
 
   onMount(() => {
-    if ((new Date() - new Date(contact?.time)) / 1000 < 100) {
+    if (lessThanNSecondsAgo(contact.time, 4)) {
       bgcolor = "lightgreen";
-      setTimeout(() => {
-        bgcolor = "beige";
-      }, 500);
-    } else {
     }
     timestamp = timeSince(contact.time);
-    autoUpdater();
+
+    setInterval(() => {
+      if (doAutoUpdate) {
+        if (!lessThanNSecondsAgo(contact.time, 4)) {
+          bgcolor = "beige";
+        } else {
+          bgcolor = "lightgreen";
+        }
+        timestamp = timeSince(contact.time);
+      } else {
+        return;
+      }
+    }, 1000);
   });
 
-  function autoUpdater() {
-    if (doAutoUpdate) {
-      setTimeout(() => {
-        timestamp = timeSince(contact?.time);
-        autoUpdater();
-      }, 1000);
-    }
+  function lessThanNSecondsAgo(timestamp, n) {
+    return new Date().getTime() - new Date(timestamp).getTime() < n * 1000;
   }
 
   function timeSince(date) {
@@ -53,28 +56,41 @@
     if (interval > 1) {
       return Math.floor(interval) + "m";
     }
-    return Math.floor(seconds) + "s";
+    return "<1m";
   }
 </script>
 
-<div id="container" class="main-bg" style="background: {bgcolor}">
-  <div style="margin-left:auto; justify-content: space-between; ">
+<div id="container" class="main-bg" style="background-color:{bgcolor}">
+  <div
+    style="display: flex;
+      justify-content: space-around;
+      width: 100%;
+      align-items: center;"
+  >
+    <p
+      style="    margin-left: 4px;
+    font-variant: all-small-caps;
+    opacity: 50%;"
+    >
+      contact
+    </p>
     {#if timestamp}
       <p
         style="    background-color: aliceblue;
         border-top-right-radius: 0.5em;
         border-bottom-left-radius: 0.5em;
-        border-top: solid black thin;
         border-bottom: solid black thin;
         border-left: solid black thin;
         padding-right: 2px;
         padding-left: 4px;
-        padding-bottom: 2px;"
+        padding-bottom: 2px;
+        margin-left:auto;"
       >
         <b>{timestamp}</b> <em>ago</em>
       </p>
     {/if}
   </div>
+
   <div
     style="display:flex; flex-direction: row; flex-wrap: wrap; overflow-y:scroll; border-top:solid black thin; border-bottom: solid black thin"
   >
@@ -145,14 +161,12 @@
     border-width: thin;
     border-radius: 0.5em;
     min-width: 300px;
-    aspect-ratio: 1/1;
+    height:100%;
     gap: 4px;
     margin: 4px;
-    padding-bottom: 4px;
-    background: beige;
+    padding-bottom: 20px;
     overflow: hidden;
-    transition-property: background;
-    transition-duration: 2s;
+    transition-duration: 1s;
   }
 
   ::-webkit-scrollbar {

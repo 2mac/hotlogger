@@ -15,6 +15,7 @@
   import SectionChecklist from "./SectionChecklist.svelte";
   import ConnectionStatus from "./ConnectionStatus.svelte";
   import ContactCard from "./ContactCard.svelte";
+  import { collapseable } from "$lib/animations/collapseable";
 
   let myCall = $page.data.callsign;
   const logCall = $page.data.log.callsign;
@@ -128,6 +129,11 @@
 
   let score;
   $: score = logType.score?.($page.data.log, $contacts);
+
+  let collapseShared = true;
+  function toggleShared(){
+    collapseShared=!collapseShared;
+  }
 </script>
 
 <div
@@ -146,8 +152,7 @@ justify-content: space-between;"
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    border-bottom: solid red thin; 
+    justify-content: space-between; 
     gap: 4px"
   >
     <h2 style="margin-top: .25em; margin-bottom: .25em;">
@@ -180,10 +185,12 @@ justify-content: space-between;"
       </div>
     </div>
   </div>
+  {#if $page.data.log.shared}
   <div
     style="margin-bottom: 2px; background:lightcyan; padding:2px; border-radius:0.25em; border: solid lightgrey thin"
   >
-    {#if $page.data.log.shared}
+  <div use:collapseable={collapseShared} style="padding-bottom:20px">
+
       <div style="display:flex">
         <h3 style="margin:2px">Active Stations</h3>
       </div>
@@ -207,24 +214,51 @@ justify-content: space-between;"
           </tbody>
         </table>
       </div>
-    {/if}
+
 
     {#if logType.contest}
-      <h3>Contest Info</h3>
+      <div
+        style="    display: flex;
+      justify-content: space-between;
+      align-items: center;"
+      >
+        <h3 style="margin: 4px; display:inline">Contest Info</h3>
 
-      {#if logType.score}
-        <div>
-          <strong>Score: {score}</strong>
-        </div>
-      {/if}
-
+        {#if logType.score}
+          <div>
+            <strong>Score: {score}</strong>
+          </div>
+        {/if}
+      </div>
       {#if inputs.includes("c:arrl_section")}
-        <h4>ARRL Section Checklist</h4>
+        <h4
+          style="    width: 100%;
+        margin-top: 5px;
+        text-align: center;
+        margin-bottom: 1px;"
+        >
+          ARRL Section Checklist
+        </h4>
         <SectionChecklist groups={arrlSections} />
       {/if}
     {/if}
+    </div>
+    <div class="collapser">
+      <button
+        on:click={() => {
+          toggleShared(); 
+        }}
+      >
+        {#if collapseShared}
+        &#x25B2
+        {:else}
+        &#x25BC;
+        {/if}
+      </button>
+    </div>
   </div>
-  <div style="display:inline-flex; gap: 4px; justify-content: space-between;">
+  {/if}
+  <div style="display:inline-flex; gap: 2px; justify-content: space-between;">
     <div style="width:max-content;">
       {#if tableView == true}
         <button
@@ -251,10 +285,10 @@ justify-content: space-between;"
           style="display: inline-flex;
             flex-direction: row;"
         >
-          <label style="display:flex;">
-            Operator:
+          <label style="display:flex;     align-items: center;">
+            Operator
             <input
-              style="width:120px"
+              style="width:80px"
               type="text"
               name="callsign"
               value={myCall}
@@ -300,7 +334,10 @@ justify-content: space-between;"
           </table>
         </div>
       {:else}
-        <div class="card-container">
+        <div
+          class="card-container"
+          style="height: {(columns.length ?? 1) * 30}px"
+        >
           {#each $contacts as contact}
             <ContactCard bind:contact bind:columns></ContactCard>
           {/each}
@@ -308,7 +345,7 @@ justify-content: space-between;"
       {/if}
 
       {#if logType.preventDuplicates}
-        <p style="color:red">{@html duplicateText}</p>
+        <p style="color:red; margin:2px">{@html duplicateText}</p>
       {/if}
 
       <div
@@ -610,5 +647,23 @@ justify-content: space-between;"
     column-gap: 10px;
     contain: inline-size;
     margin-right: 0px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    overflow-y: hidden;
+  }
+
+  @media (max-aspect-ratio: 1/1) {
+    .collapser {
+      height: 1em;
+      width: 100%;
+    }
+    .collapser button {
+      width: 100%;
+      height: 100%;
+      border: 0px;
+      background-color: cyan;
+      opacity: 50%;
+      box-shadow: none;
+    }
   }
 </style>

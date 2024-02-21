@@ -8,8 +8,9 @@
 
 <style>
     img {
-        height: 10vh;
-        min-height: 40px;
+        width:90vw;
+        max-height: 100px;
+        max-width: 500px;
     }
 
     header {
