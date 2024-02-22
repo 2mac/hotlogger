@@ -9,9 +9,11 @@
     export let choices;
     export let restrict = false;
     export let required = false;
+
+    let showChoices = false; 
 </script>
 
-<div>
+<div on:mouseleave={()=>{showChoices = false;}}>
     <label for={name}>{label}:</label>
     {#if restrict}
         <select {id} {name} {required} bind:value={value} on:change>
@@ -20,7 +22,7 @@
             {/each}
         </select>
     {:else}
-        <TextSelect {id} {name} {choices} bind:value={value} on:change {required}/>
+        <TextSelect {id} {name} {choices} bind:value={value} on:change {required} bind:showChoices/>
     {/if}
 </div>
 

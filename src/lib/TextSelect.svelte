@@ -8,18 +8,12 @@
   export let autocomplete;
   export let required;
 
+  export let showChoices = false;
+
   let input;
-  let showChoices = false;
 </script>
 
-<div
-  on:focusin={() => {
-    showChoices = true;
-  }}
-  on:focusout={() => {
-    showChoices = false;
-  }}
->
+<div>
   <div>
     <input
       {id}
@@ -31,9 +25,10 @@
       on:change
       bind:value
       bind:this={input}
+      on:focus={()=>{showChoices=true}}
     />
     {#if showChoices}
-      <div style="view:lr; position:relative; transform: translate(0%,-5px)">
+      <div style="view:lr; position:relative; transform: translate(0%,-5px)" on:focusout={()=>{showChoices=false}}>
         <ul>
           {#each Object.entries(choices) as [text, choice]}
             <li>
@@ -67,7 +62,7 @@
   }
 
   ul {
-    position: absolute;
+    position: fixed;
     z-index: 99;
     border: thin solid;
     width: fit-content;
